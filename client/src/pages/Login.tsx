@@ -1,0 +1,257 @@
+import React from "react";
+
+const css = `
+:root {
+  --primary-color: #2c2c2c;
+  --primary-hover: #1a1a1a;
+  --accent-color: #4ade80;
+  --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+  --card-bg: #ffffff;
+  --text-primary: #000000;
+  --text-secondary: #4d4d4d;
+  --text-light: #f5f5f5;
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, .root { font-family: 'Inter', sans-serif; }
+.root {
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--text-primary);
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 24px;
+}
+.hero { text-align: center; margin-bottom: 80px; animation: fadeInDown 0.8s ease; }
+.hero h1 { font-size: 48px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; letter-spacing: -0.02em; }
+.hero p { font-size: 20px; font-weight: 300; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+.cards-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 40px;
+  margin-bottom: 80px;
+  animation: fadeInUp 0.8s ease 0.2s both;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 40px 32px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+.card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.card:hover::before { transform: scaleX(1); }
+
+.card-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+  border-radius: 20px;
+  font-size: 40px;
+  transition: transform 0.3s ease;
+}
+.card:hover .card-icon { transform: scale(1.1) rotate(5deg); }
+.card-icon.medical { background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%); }
+
+.card h2 { font-size: 24px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+.card-description { font-size: 16px; color: var(--text-secondary); text-align: center; margin-bottom: 24px; line-height: 1.5; }
+.card-features { list-style: none; margin-bottom: 32px; }
+.card-features li {
+  font-size: 14px;
+  padding: 10px 0;
+  padding-left: 28px;
+  position: relative;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.card-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  text-decoration: none;
+}
+.btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(44,44,44,0.3); }
+.btn:active { transform: translateY(0); }
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  animation: fadeInUp 0.8s ease 0.4s both;
+}
+.feature {
+  text-align: center;
+  padding: 32px 24px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+.feature:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.feature-icon { font-size: 48px; margin-bottom: 20px; display: block; }
+.feature h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary); }
+.feature p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 768px) {
+  .container { padding: 40px 16px; }
+  .hero h1 { font-size: 36px; }
+  .hero p { font-size: 18px; }
+  .cards-wrapper { gap: 24px; margin-bottom: 60px; }
+  .card { padding: 32px 24px; }
+  .features { gap: 24px; }
+}
+@media (max-width: 480px) {
+  .hero h1 { font-size: 28px; }
+  .hero p { font-size: 16px; }
+  .card h2 { font-size: 20px; }
+}
+`;
+
+/**
+ * SistemaDeCitas component
+ * Single-file TSX. CSS is injected via a style tag.
+ * Replace onClick handlers with navigation or functions as needed.
+ */
+const SistemaDeCitas: React.FC = () => {
+  return (
+    <div className="root">
+      <style dangerouslySetInnerHTML={{ __html: css }} />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      />
+      <div className="container">
+        <div className="hero">
+          <h1>Sistema de Citas Clínicas</h1>
+          <p>Gestión integral de citas médicas para clínicas</p>
+        </div>
+
+        <div className="cards-wrapper">
+          <div className="card" role="region" aria-label="Panel de Paciente">
+            <div className="card-icon" aria-hidden>
+              <span style={{ fontSize: 36 }}>👤</span>
+            </div>
+            <h2>Panel de Paciente</h2>
+            <p className="card-description">
+              Agenda tus citas médicas y consulta tu historial
+            </p>
+            <ul className="card-features">
+              <li>Agendar nueva cita</li>
+              <li>Ver historial de citas</li>
+              <li>Consultar especialidades</li>
+              <li>Gestionar información personal</li>
+            </ul>
+            <button
+              className="btn"
+              onClick={() => {
+                /* placeholder: agregar navegación */
+              }}
+            >
+              Acceder como Paciente
+            </button>
+          </div>
+
+          <div className="card" role="region" aria-label="Panel Médico">
+            <div className="card-icon medical" aria-hidden>
+              <span style={{ fontSize: 36 }}>🩺</span>
+            </div>
+            <h2>Panel Médico</h2>
+            <p className="card-description">
+              Administra citas, pacientes y consultas médicas
+            </p>
+            <ul className="card-features">
+              <li>Calendario de citas</li>
+              <li>Gestión de pacientes</li>
+              <li>Reportes y estadísticas</li>
+              <li>Historial de consultas</li>
+            </ul>
+            <button
+              className="btn"
+              onClick={() => {
+                /* placeholder: agregar navegación */
+              }}
+            >
+              Acceder como Doctor
+            </button>
+          </div>
+        </div>
+
+        <div className="features" aria-label="Características">
+          <div className="feature">
+            <span className="feature-icon" aria-hidden>
+              📅
+            </span>
+            <h3>Gestión de Citas</h3>
+            <p>Sistema para agendar y administrar citas médicas</p>
+          </div>
+
+          <div className="feature">
+            <span className="feature-icon" aria-hidden>
+              👥
+            </span>
+            <h3>Control de Pacientes</h3>
+            <p>Registro y seguimiento del historial médico de pacientes</p>
+          </div>
+
+          <div className="feature">
+            <span className="feature-icon" aria-hidden>
+              📊
+            </span>
+            <h3>Reportes y Análisis</h3>
+            <p>Estadísticas y reportes para mejorar la gestión clínica</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SistemaDeCitas;
