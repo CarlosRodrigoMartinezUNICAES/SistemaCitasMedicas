@@ -1,0 +1,433 @@
+import React, { useState } from "react";import React, { useState } from "react";
+
+import axios from "axios";import axios from "axios";
+
+
+
+const css = `const css = `
+
+.login-container {:root {
+
+  display: flex;  --primary-color: #2c2c2c;
+
+  justify-content: center;  --primary-hover: #1a1a1a;
+
+  align-items: center;  --accent-color: #4ade80;
+
+  min-height: 100vh;  --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+
+  background: var(--bg-gradient);  --card-bg: #ffffff;
+
+}  --text-primary: #000000;
+
+  --text-secondary: #4d4d4d;
+
+.login-card {  --text-light: #f5f5f5;
+
+  background: var(--card-bg);  --border-color: #e5e7eb;
+
+  padding: 2rem;  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  border-radius: 16px;  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  box-shadow: var(--shadow-md);  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  width: 100%;}
+
+  max-width: 400px;* { margin: 0; padding: 0; box-sizing: border-box; }
+
+}body, .root { font-family: 'Inter', sans-serif; }
+
+.root {
+
+.login-form {  background: var(--bg-gradient);
+
+  display: flex;  min-height: 100vh;
+
+  flex-direction: column;  overflow-x: hidden;
+
+  gap: 1.5rem;  color: var(--text-primary);
+
+}}
+
+.container {
+
+.form-group {  max-width: 1200px;
+
+  display: flex;  margin: 0 auto;
+
+  flex-direction: column;  padding: 60px 24px;
+
+  gap: 0.5rem;}
+
+}.hero { text-align: center; margin-bottom: 80px; animation: fadeInDown 0.8s ease; }
+
+.hero h1 { font-size: 48px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; letter-spacing: -0.02em; }
+
+.form-group label {.hero p { font-size: 20px; font-weight: 300; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+  color: var(--text-secondary);
+
+  font-size: 0.9rem;.cards-wrapper {
+
+}  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+
+.form-group input {  gap: 40px;
+
+  padding: 0.75rem 1rem;  margin-bottom: 80px;
+
+  border: 1px solid var(--border-color);  animation: fadeInUp 0.8s ease 0.2s both;
+
+  border-radius: 8px;}
+
+  font-size: 1rem;
+
+  transition: all 0.3s ease;.card {
+
+}  background: var(--card-bg);
+
+  border-radius: 16px;
+
+.form-group input:focus {  padding: 40px 32px;
+
+  border-color: var(--accent-color);  box-shadow: var(--shadow-sm);
+
+  outline: none;  border: 1px solid var(--border-color);
+
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+}  position: relative;
+
+  overflow: hidden;
+
+.error-message {}
+
+  color: #ef4444;.card::before {
+
+  font-size: 0.875rem;  content: '';
+
+  margin-top: 0.5rem;  position: absolute;
+
+}  top: 0;
+
+  left: 0;
+
+.back-button {  right: 0;
+
+  color: var(--text-secondary);  height: 4px;
+
+  text-decoration: none;  background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+
+  font-size: 0.9rem;  transform: scaleX(0);
+
+  margin-top: 1rem;  transition: transform 0.3s ease;
+
+  display: inline-block;}
+
+}.card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+
+.card:hover::before { transform: scaleX(1); }
+
+.back-button:hover {
+
+  color: var(--text-primary);.card-icon {
+
+}  width: 80px;
+
+`;  height: 80px;
+
+  margin: 0 auto 24px;
+
+interface LoginProps {  display: flex;
+
+  userType: 'Paciente' | 'Doctor';  align-items: center;
+
+  onBack: () => void;  justify-content: center;
+
+}  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+
+  border-radius: 20px;
+
+const Login: React.FC<LoginProps> = ({ userType, onBack }) => {  font-size: 40px;
+
+  const [username, setUsername] = useState("");  transition: transform 0.3s ease;
+
+  const [password, setPassword] = useState("");}
+
+  const [error, setError] = useState("");.card:hover .card-icon { transform: scale(1.1) rotate(5deg); }
+
+  const [loading, setLoading] = useState(false);.card-icon.medical { background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%); }
+
+
+
+  const handleLogin = async (e: React.FormEvent) => {.card h2 { font-size: 24px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+
+    e.preventDefault();.card-description { font-size: 16px; color: var(--text-secondary); text-align: center; margin-bottom: 24px; line-height: 1.5; }
+
+    setError("");.card-features { list-style: none; margin-bottom: 32px; }
+
+    setLoading(true);.card-features li {
+
+  font-size: 14px;
+
+    try {  padding: 10px 0;
+
+      const response = await axios.post('http://localhost:3000/api/login', {  padding-left: 28px;
+
+        username,  position: relative;
+
+        password,  color: var(--text-secondary);
+
+        tipo_usuario: userType  line-height: 1.6;
+
+      });}
+
+.card-features li::before {
+
+      if (response.data.success) {  content: '✓';
+
+        // Store user info and redirect based on user type  position: absolute;
+
+        console.log(`Logged in as ${userType}`);  left: 0;
+
+        // Add your navigation logic here  color: var(--accent-color);
+
+      }  font-weight: 700;
+
+    } catch (err) {  font-size: 16px;
+
+      setError("Usuario o contraseña incorrectos");}
+
+    } finally {
+
+      setLoading(false);.btn {
+
+    }  display: block;
+
+  };  width: 100%;
+
+  padding: 14px 24px;
+
+  return (  background: var(--primary-color);
+
+    <div className="login-container">  color: var(--text-light);
+
+      <style>{css}</style>  border: none;
+
+      <div className="login-card">  border-radius: 10px;
+
+        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>  font-size: 16px;
+
+          Acceso {userType}  font-weight: 600;
+
+        </h2>  cursor: pointer;
+
+        <form onSubmit={handleLogin} className="login-form">  transition: all 0.3s ease;
+
+          <div className="form-group">  text-align: center;
+
+            <label htmlFor="username">Usuario</label>  text-decoration: none;
+
+            <input}
+
+              id="username".btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(44,44,44,0.3); }
+
+              type="text".btn:active { transform: translateY(0); }
+
+              value={username}
+
+              onChange={(e) => setUsername(e.target.value)}.features {
+
+              required  display: grid;
+
+            />  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+          </div>  gap: 40px;
+
+          <div className="form-group">  animation: fadeInUp 0.8s ease 0.4s both;
+
+            <label htmlFor="password">Contraseña</label>}
+
+            <input.feature {
+
+              id="password"  text-align: center;
+
+              type="password"  padding: 32px 24px;
+
+              value={password}  background: var(--card-bg);
+
+              onChange={(e) => setPassword(e.target.value)}  border-radius: 16px;
+
+              required  box-shadow: var(--shadow-sm);
+
+            />  border: 1px solid var(--border-color);
+
+          </div>  transition: all 0.3s ease;
+
+          {error && <div className="error-message">{error}</div>}}
+
+          <button.feature:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+            className="btn".feature-icon { font-size: 48px; margin-bottom: 20px; display: block; }
+
+            type="submit".feature h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary); }
+
+            disabled={loading}.feature p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+            style={{ marginTop: '1rem' }}
+
+          >@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+          </button>
+
+        </form>@media (max-width: 768px) {
+
+        <button onClick={onBack} className="back-button">  .container { padding: 40px 16px; }
+
+          ← Volver al inicio  .hero h1 { font-size: 36px; }
+
+        </button>  .hero p { font-size: 18px; }
+
+      </div>  .cards-wrapper { gap: 24px; margin-bottom: 60px; }
+
+    </div>  .card { padding: 32px 24px; }
+
+  );  .features { gap: 24px; }
+
+};}
+
+@media (max-width: 480px) {
+
+export default Login;  .hero h1 { font-size: 28px; }
+  .hero p { font-size: 16px; }
+  .card h2 { font-size: 20px; }
+}
+`;
+
+const Login: React.FC = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/login', {
+        username,
+        password
+      });
+
+      if (response.data.success) {
+        // Store user info and redirect based on user type
+        const { tipo_usuario } = response.data;
+        // You can add navigation here based on user type
+        console.log(`Logged in as ${tipo_usuario}`);
+      }
+    } catch (err) {
+      setError("Usuario o contraseña incorrectos");
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <div className="root">
+      <style dangerouslySetInnerHTML={{ __html: css }} />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      />
+      <div className="container">
+        <div className="hero">
+          <h1>Sistema de Citas Clínicas</h1>
+          <p>Gestión integral de citas médicas para clínicas</p>
+        </div>
+
+        <div className="cards-wrapper">
+          <div className="card" role="region" aria-label="Panel de Paciente">
+            <div className="card-icon" aria-hidden>
+              <span style={{ fontSize: 36 }}>👤</span>
+            </div>
+            <h2>Panel de Paciente</h2>
+            <p className="card-description">
+              Agenda tus citas médicas y consulta tu historial
+            </p>
+            <ul className="card-features">
+              <li>Agendar nueva cita</li>
+              <li>Ver historial de citas</li>
+              <li>Consultar especialidades</li>
+              <li>Gestionar información personal</li>
+            </ul>
+            <button
+              className="btn"
+              onClick={() => {
+                /* placeholder: agregar navegación */
+              }}
+            >
+              Acceder como Paciente
+            </button>
+          </div>
+
+          <div className="card" role="region" aria-label="Panel Médico">
+            <div className="card-icon medical" aria-hidden>
+              <span style={{ fontSize: 36 }}>🩺</span>
+            </div>
+            <h2>Panel Médico</h2>
+            <p className="card-description">
+              Administra citas, pacientes y consultas médicas
+            </p>
+            <ul className="card-features">
+              <li>Calendario de citas</li>
+              <li>Gestión de pacientes</li>
+              <li>Reportes y estadísticas</li>
+              <li>Historial de consultas</li>
+            </ul>
+            <button
+              className="btn"
+              onClick={() => {
+                /* placeholder: agregar navegación */
+              }}
+            >
+              Acceder como Doctor
+            </button>
+          </div>
+        </div>
+
+        <div className="features" aria-label="Características">
+          <div className="feature">
+            <span className="feature-icon" aria-hidden>
+              📅
+            </span>
+            <h3>Gestión de Citas</h3>
+            <p>Sistema para agendar y administrar citas médicas</p>
+          </div>
+
+          <div className="feature">
+            <span className="feature-icon" aria-hidden>
+              👥
+            </span>
+            <h3>Control de Pacientes</h3>
+            <p>Registro y seguimiento del historial médico de pacientes</p>
+          </div>
+
+          <div className="feature">
+            <span className="feature-icon" aria-hidden>
+              📊
+            </span>
+            <h3>Reportes y Análisis</h3>
+            <p>Estadísticas y reportes para mejorar la gestión clínica</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SistemaDeCitas;
