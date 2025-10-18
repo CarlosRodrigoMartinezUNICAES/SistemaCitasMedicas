@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Login } from "./Login";
+import Login from "./Login";
 
 const LandingPage: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
