@@ -1,9 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+  }
+}
+
 html, body, #root {
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-  font-family: system-ui, sans-serif;
-  background-color: #fff;
-  color: #000;
 }
