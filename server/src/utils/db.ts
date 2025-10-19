@@ -17,7 +17,7 @@ export const pool = createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     connectionLimit: 5,
-    debug: true // Enable detailed connection debugging
+    debug: false // disable low-level packet dumps; keep higher-level logs below
 });
 
 // Add event listeners to the pool

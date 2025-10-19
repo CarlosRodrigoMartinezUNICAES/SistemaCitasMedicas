@@ -35,11 +35,25 @@ router.get('/:id', async (req, res) => {
             WHERE c.id_paciente = ?
             ORDER BY c.fecha DESC, c.hora DESC`;
         const citas = await conn.query(citasQuery, [paciente.id_paciente]);
+
+        // Get consultas for this paciente
+        const consultasQuery = `
+            SELECT co.id_consulta, co.reporte_paciente, co.fecha_consulta,
+                   c.id_cita, d.nombre_completo AS doctor_nombre, e.nombre AS especialidad
+            FROM Consulta co
+            JOIN Cita c ON co.id_cita = c.id_cita
+            JOIN Doctor d ON c.id_doctor = d.id_doctor
+            JOIN Especialidad e ON d.id_especialidad = e.id_especialidad
+            WHERE c.id_paciente = ?
+            ORDER BY co.fecha_consulta DESC`;
+        const consultas = await conn.query(consultasQuery, [paciente.id_paciente]);
+
         conn.release();
 
         console.log('Paciente found:', paciente);
         console.log('Citas found:', citas.length);
-        res.json({ success: true, paciente, citas });
+        console.log('Consultas found:', consultas.length);
+        res.json({ success: true, paciente, citas, consultas });
     } catch (error: any) {
         console.error('Error fetching paciente:', error.message);
         res.status(500).json({ success: false, message: 'Error del servidor' });

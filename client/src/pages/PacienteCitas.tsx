@@ -38,7 +38,7 @@ const ghostButtonStyle = {
 type PacienteCitasProps = {
   id_usuario?: string;
   onBack?: () => void;
-  onNavigate?: (page: 'citas' | 'historial' | 'perfil') => void;
+  onNavigate?: (page: 'citas' | 'historial' | 'perfil' | 'agendar') => void;
 };
 
 export default function PacienteCitas({ id_usuario, onBack, onNavigate }: PacienteCitasProps) {
@@ -95,7 +95,7 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
           >
             Historial Médico
           </button>
-          <button style={{ color: "#64748b", background: "none", border: "none", cursor: "pointer" }}>Mi Perfil</button>
+          <button style={{ color: "#64748b", background: "none", border: "none", cursor: "pointer" }} onClick={() => onNavigate?.('perfil')}>Mi Perfil</button>
         </div>
         {/* Información del paciente */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", marginBottom: 32 }}>
@@ -117,7 +117,7 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
             </div>
             <p style={{ color: "#64748b", marginTop: 4 }}>Edad</p>
           </div>
-          <button style={{ ...buttonStyle, height: 48, padding: "0 32px", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+          <button onClick={() => onNavigate?.('agendar')} style={{ ...buttonStyle, height: 48, padding: "0 32px", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
             + Nueva Cita
           </button>
         </div>

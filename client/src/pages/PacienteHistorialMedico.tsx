@@ -35,15 +35,15 @@ const ghostButtonStyle = {
   fontSize: 15
 };
 
-type PacienteCitasProps = {
+type PacienteHistorialProps = {
   id_usuario?: string;
   onBack?: () => void;
   onNavigate?: (page: 'citas' | 'historial' | 'perfil') => void;
 };
 
-export default function PacienteCitas({ id_usuario, onBack, onNavigate }: PacienteCitasProps) {
+export default function PacienteHistorialMedico({ id_usuario, onBack, onNavigate }: PacienteHistorialProps) {
   const [paciente, setPaciente] = useState<any>(null);
-  const [citas, setCitas] = useState<any[]>([]);
+  const [consultas, setConsultas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -51,22 +51,17 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
     const fetchPaciente = async () => {
       setLoading(true);
       try {
-        console.log('Fetching paciente for id_usuario=', id_usuario);
         const res = await fetch(`http://localhost:3000/api/paciente/${encodeURIComponent(id_usuario)}`);
         const data = await res.json();
-        console.log('Paciente fetch response:', data);
         if (data.success) {
           setPaciente(data.paciente);
-          setCitas(data.citas || []);
+          setConsultas(data.consultas || []);
         } else {
           setPaciente(null);
-          setCitas([]);
-          console.warn('Paciente not found or error', data);
+          setConsultas([]);
         }
       } catch (err) {
-        setPaciente(null);
-        setCitas([]);
-        console.error('Error fetching paciente', err);
+        console.error('Error fetching paciente/consultas', err);
       } finally {
         setLoading(false);
       }
@@ -82,21 +77,23 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
         </button>
         <h1 style={{ fontSize: 24, fontWeight: 600 }}>Panel de Paciente</h1>
         <p style={{ color: "#64748b", marginBottom: 24 }}>{paciente ? `Bienvenido, ${paciente.nombre_completo}` : 'Bienvenido'}</p>
+
         {/* Navegación */}
         <div style={{ display: "flex", gap: 24, borderBottom: "1px solid #e5e7eb", paddingBottom: 12, marginBottom: 24 }}>
-          <button 
-            style={{ fontWeight: 600, color: "#222", borderBottom: "2px solid #222", paddingBottom: 4, background: "none", borderTop: "none", borderLeft: "none", borderRight: "none", cursor: "pointer" }}
+          <button
+            style={{ color: "#64748b", background: "none", border: "none", cursor: "pointer" }}
+            onClick={() => onNavigate?.('citas')}
           >
             Mis Citas
           </button>
-          <button 
-            style={{ color: "#64748b", background: "none", border: "none", cursor: "pointer" }}
-            onClick={() => onNavigate?.('historial')}
+          <button
+            style={{ fontWeight: 600, color: "#222", borderBottom: "2px solid #222", paddingBottom: 4, background: "none", borderTop: "none", borderLeft: "none", borderRight: "none", cursor: "pointer" }}
           >
             Historial Médico
           </button>
-          <button style={{ color: "#64748b", background: "none", border: "none", cursor: "pointer" }}>Mi Perfil</button>
+          <button style={{ color: "#64748b", background: "none", border: "none", cursor: "pointer" }} onClick={() => onNavigate?.('perfil')}>Mi Perfil</button>
         </div>
+
         {/* Información del paciente */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", marginBottom: 32 }}>
           <div style={cardStyle}>
@@ -121,34 +118,32 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
             + Nueva Cita
           </button>
         </div>
-        {/* Citas reales */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+        {/* Historial Médico */}
+        <div style={{ ...cardStyle, padding: 20, textAlign: "left" }}>
+          <p style={{ color: "#1e293b", fontWeight: 500, marginBottom: 4 }}>Historial Médico</p>
+          <p style={{ color: "#64748b", fontSize: 14, marginBottom: 20 }}>Consultas y reportes médicos anteriores</p>
+
           {loading ? (
-            <div style={{ color: "#64748b", fontSize: 16 }}>Cargando citas...</div>
-          ) : citas.length === 0 ? (
-            <div style={{ color: "#64748b", fontSize: 16 }}>No hay citas agendadas</div>
+            <div style={{ color: "#64748b", fontSize: 16 }}>Cargando consultas...</div>
+          ) : consultas.length === 0 ? (
+            <div style={{ color: "#64748b", fontSize: 16 }}>No hay consultas registradas</div>
           ) : (
-            citas.map((cita) => (
-              <div key={cita.id_cita} style={{ ...cardStyle, border: "2px dotted #60a5fa", textAlign: "left" }}>
-                <p style={{ fontSize: 12, color: cita.estado === 'Pendiente' ? "#dc2626" : cita.estado === 'Confirmada' ? "#16a34a" : "#2563eb", fontWeight: 600, marginBottom: 4 }}>{cita.estado}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155" }}>
-                  <Calendar size={16} />
-                  <p>{formatFecha(cita.fecha)}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {consultas.map((consulta) => (
+                <div key={consulta.id_consulta} style={{ ...cardStyle, border: "1px solid #e5e7eb", textAlign: "left" }}>
+                  <p style={{ color: "#1e293b", fontWeight: 500, marginBottom: 4 }}>{consulta.especialidad}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#64748b", marginBottom: 8 }}>
+                    <User size={16} />
+                    <p>{consulta.doctor_nombre}</p>
+                  </div>
+                  <p style={{ color: "#475569", fontSize: 14 }}>{consulta.reporte_paciente || 'Sin reporte'}</p>
+                  <p style={{ color: "#64748b", fontSize: 14, marginTop: 8 }}>
+                    {formatFecha(consulta.fecha_consulta)}
+                  </p>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155", marginTop: 4 }}>
-                  <Clock size={16} />
-                  <p>{cita.hora?.slice(0,5)}</p>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155", marginTop: 4 }}>
-                  <User size={16} />
-                  <p>{cita.doctor_nombre}</p>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155", marginTop: 4 }}>
-                  <Stethoscope size={16} />
-                  <p>{cita.especialidad}</p>
-                </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -157,9 +152,11 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
 }
 
 function formatFecha(fecha: string) {
-  // yyyy-mm-dd to 'Día, dd de Mes de yyyy'
-  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const d = new Date(fecha);
-  return `${dias[d.getDay()]}, ${d.getDate().toString().padStart(2,'0')} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+  return d.toLocaleDateString('es-ES', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 }
