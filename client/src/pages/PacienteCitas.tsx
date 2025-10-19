@@ -1,5 +1,6 @@
 import { Calendar, Phone, User, Clock, Stethoscope, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const cardStyle = {
   background: "#fff",
@@ -122,9 +123,9 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
           </button>
         </div>
         {/* Citas reales */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, minHeight: 200, justifyContent: loading ? "center" : "flex-start" }}>
           {loading ? (
-            <div style={{ color: "#64748b", fontSize: 16 }}>Cargando citas...</div>
+            <LoadingSpinner size="medium" text="Cargando citas..." />
           ) : citas.length === 0 ? (
             <div style={{ color: "#64748b", fontSize: 16 }}>No hay citas agendadas</div>
           ) : (
