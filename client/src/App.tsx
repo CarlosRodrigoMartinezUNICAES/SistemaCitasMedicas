@@ -6,6 +6,7 @@ import PacientePerfil from "./pages/PacientePerfil";
 import AgendarCita from "./pages/AgendarCita";
 import Login from "./pages/Login";
 import DoctorCalendario from "./pages/DoctorCalendario";
+import DoctorCitas from "./pages/DoctorCitas";
 
 type Route =
   | { name: 'landing' }
@@ -14,7 +15,8 @@ type Route =
   | { name: 'paciente-historial'; id_usuario: string }
   | { name: 'paciente-perfil'; id_usuario: string }
   | { name: 'agendar-cita'; id_usuario: string }
-  | { name: 'doctor-calendario'; id_usuario: string };
+  | { name: 'doctor-calendario'; id_usuario: string }
+  | { name: 'doctor-citas'; id_usuario: string };
 
 const App: React.FC = () => {
   const [route, setRoute] = useState<Route>({ name: 'landing' });
@@ -44,8 +46,8 @@ const App: React.FC = () => {
 
   const handleDoctorNavigate = (userId: string, page: 'calendario' | 'citas' | 'pacientes' | 'reportes') => {
     if (page === 'calendario') setRoute({ name: 'doctor-calendario', id_usuario: userId });
+    if (page === 'citas') setRoute({ name: 'doctor-citas', id_usuario: userId });
     // TODO: Add other doctor pages as they are created
-    // if (page === 'citas') setRoute({ name: 'doctor-citas', id_usuario: userId });
     // if (page === 'pacientes') setRoute({ name: 'doctor-pacientes', id_usuario: userId });
     // if (page === 'reportes') setRoute({ name: 'doctor-reportes', id_usuario: userId });
   };
@@ -57,6 +59,7 @@ const App: React.FC = () => {
   if (route.name === 'paciente-perfil') return <PacientePerfil id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
   if (route.name === 'agendar-cita') return <AgendarCita id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario })} onCreated={(id) => { console.log('Cita creada', id); setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario }); }} />;
   if (route.name === 'doctor-calendario') return <DoctorCalendario id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
+  if (route.name === 'doctor-citas') return <DoctorCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
 
   return null;
 };
