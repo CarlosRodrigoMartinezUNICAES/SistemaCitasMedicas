@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import LandingPage from "./pages/LandingPage";
 import PacienteCitas from "./pages/PacienteCitas";
 import PacienteHistorialMedico from "./pages/PacienteHistorialMedico";
@@ -7,6 +8,7 @@ import AgendarCita from "./pages/AgendarCita";
 import Login from "./pages/Login";
 import DoctorCalendario from "./pages/DoctorCalendario";
 import DoctorCitas from "./pages/DoctorCitas";
+import "./App.css";
 
 type Route =
   | { name: 'landing' }
@@ -21,9 +23,31 @@ type Route =
 const App: React.FC = () => {
   const [route, setRoute] = useState<Route>({ name: 'landing' });
 
+  const getRouteKey = (route: Route): string => {
+    switch (route.name) {
+      case 'landing':
+        return 'landing';
+      case 'login':
+        return `login-${route.tipo_usuario}`;
+      case 'paciente-citas':
+        return `${route.name}-${route.id_usuario}`;
+      case 'paciente-historial':
+        return `${route.name}-${route.id_usuario}`;
+      case 'paciente-perfil':
+        return `${route.name}-${route.id_usuario}`;
+      case 'agendar-cita':
+        return `${route.name}-${route.id_usuario}`;
+      case 'doctor-calendario':
+        return `${route.name}-${route.id_usuario}`;
+      case 'doctor-citas':
+        return `${route.name}-${route.id_usuario}`;
+      default:
+        return route.name;
+    }
+  };
+
   const handleLoginSuccess = (userId: string, tipo: string) => {
     console.log('handleLoginSuccess called with', { userId, tipo });
-    // userId is id_usuario from backend
     if (tipo === 'Paciente') {
       console.log('Routing to paciente-citas page for', userId);
       setRoute({ name: 'paciente-citas', id_usuario: userId });
@@ -31,7 +55,6 @@ const App: React.FC = () => {
       console.log('Routing to doctor-calendario page for', userId);
       setRoute({ name: 'doctor-calendario', id_usuario: userId });
     } else {
-      // fallback to landing
       console.log('Unknown user type, routing to landing');
       setRoute({ name: 'landing' });
     }
@@ -47,21 +70,45 @@ const App: React.FC = () => {
   const handleDoctorNavigate = (userId: string, page: 'calendario' | 'citas' | 'pacientes' | 'reportes') => {
     if (page === 'calendario') setRoute({ name: 'doctor-calendario', id_usuario: userId });
     if (page === 'citas') setRoute({ name: 'doctor-citas', id_usuario: userId });
-    // TODO: Add other doctor pages as they are created
-    // if (page === 'pacientes') setRoute({ name: 'doctor-pacientes', id_usuario: userId });
-    // if (page === 'reportes') setRoute({ name: 'doctor-reportes', id_usuario: userId });
   };
 
-  if (route.name === 'landing') return <LandingPage onNavigate={(r) => setRoute(r)} />;
-  if (route.name === 'login') return <Login tipo_usuario={route.tipo_usuario} onBack={() => setRoute({ name: 'landing' })} onSuccess={handleLoginSuccess} />;
-  if (route.name === 'paciente-citas') return <PacienteCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
-  if (route.name === 'paciente-historial') return <PacienteHistorialMedico id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
-  if (route.name === 'paciente-perfil') return <PacientePerfil id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
-  if (route.name === 'agendar-cita') return <AgendarCita id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario })} onCreated={(id) => { console.log('Cita creada', id); setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario }); }} />;
-  if (route.name === 'doctor-calendario') return <DoctorCalendario id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
-  if (route.name === 'doctor-citas') return <DoctorCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
+  const renderPage = () => {
+    switch (route.name) {
+      case 'landing':
+        return <LandingPage onNavigate={(r) => setRoute(r)} />;
+      case 'login':
+        return <Login tipo_usuario={route.tipo_usuario} onBack={() => setRoute({ name: 'landing' })} onSuccess={handleLoginSuccess} />;
+      case 'paciente-citas':
+        return <PacienteCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
+      case 'paciente-historial':
+        return <PacienteHistorialMedico id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
+      case 'paciente-perfil':
+        return <PacientePerfil id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
+      case 'agendar-cita':
+        return <AgendarCita id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario })} onCreated={(id) => { console.log('Cita creada', id); setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario }); }} />;
+      case 'doctor-calendario':
+        return <DoctorCalendario id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
+      case 'doctor-citas':
+        return <DoctorCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
+      default:
+        return null;
+    }
+  };
 
-  return null;
+  return (
+    <div className="transition-container">
+      <TransitionGroup component={null}>
+        <CSSTransition
+          key={getRouteKey(route)}
+          timeout={400}
+          classNames="page-transition"
+          unmountOnExit
+        >
+          <div style={{ width: '100%' }}>{renderPage()}</div>
+        </CSSTransition>
+      </TransitionGroup>
+    </div>
+  );
 };
 
 export default App;
