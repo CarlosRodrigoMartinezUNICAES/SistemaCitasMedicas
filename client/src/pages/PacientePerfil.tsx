@@ -1,5 +1,6 @@
-import { Phone, Calendar, ArrowLeft } from "lucide-react";
+import { Phone, Calendar, ArrowLeft, Edit3, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import axios from 'axios';
 
 // Minimal input component
 const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
@@ -14,6 +15,19 @@ type PacientePerfilProps = {
 
 export default function PacientePerfil({ id_usuario, onBack, onNavigate }: PacientePerfilProps) {
   const [paciente, setPaciente] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    nombre_completo: "",
+    telefono: "",
+    correo: "",
+    edad: "",
+    dui: ""
+  });
 
   useEffect(() => {
     if (!id_usuario) return;
@@ -21,13 +35,89 @@ export default function PacientePerfil({ id_usuario, onBack, onNavigate }: Pacie
       try {
         const res = await fetch(`http://localhost:3000/api/paciente/${encodeURIComponent(id_usuario)}`);
         const data = await res.json();
-        if (data.success) setPaciente(data.paciente);
+        if (data.success) {
+          setPaciente(data.paciente);
+          // Initialize form data with current patient data
+          setFormData({
+            nombre_completo: data.paciente.nombre_completo || "",
+            telefono: data.paciente.telefono || "",
+            correo: data.paciente.correo || "",
+            edad: data.paciente.edad?.toString() || "",
+            dui: data.paciente.dui || ""
+          });
+        }
       } catch (err) {
         console.error('Error fetching paciente', err);
+        setError("Error al cargar la información del paciente");
       }
     };
     fetchPaciente();
   }, [id_usuario]);
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    // Clear messages when user starts typing
+    if (error) setError("");
+    if (success) setSuccess("");
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setError("");
+    setSuccess("");
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    // Reset form data to original patient data
+    if (paciente) {
+      setFormData({
+        nombre_completo: paciente.nombre_completo || "",
+        telefono: paciente.telefono || "",
+        correo: paciente.correo || "",
+        edad: paciente.edad?.toString() || "",
+        dui: paciente.dui || ""
+      });
+    }
+    setError("");
+    setSuccess("");
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await axios.put(`http://localhost:3000/api/paciente/${encodeURIComponent(id_usuario!)}`, {
+        nombre_completo: formData.nombre_completo,
+        telefono: formData.telefono,
+        correo: formData.correo,
+        edad: parseInt(formData.edad),
+        dui: formData.dui
+      });
+
+      if (response.data.success) {
+        setSuccess(response.data.message);
+        setPaciente(response.data.paciente);
+        setIsEditing(false);
+      } else {
+        setError(response.data.message || "Error al actualizar la información");
+      }
+    } catch (err: any) {
+      console.error('Error updating paciente:', err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Error al actualizar la información");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div style={{ padding: 24, background: "#f8fafc", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -90,52 +180,205 @@ export default function PacientePerfil({ id_usuario, onBack, onNavigate }: Pacie
             </div>
             <p style={{ color: "#64748b", marginTop: 4 }}>Edad</p>
           </div>
-          <button style={{ 
-            background: "#222",
-            color: "#fff", 
-            border: "none",
-            margin: 4,
-            fontWeight: 500,
-            cursor: "pointer",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-            height: 48,
-            padding: "0 32px",
-            borderRadius: 10
-          }}>
+          <button 
+            onClick={() => onNavigate?.('agendar')}
+            style={{ 
+              background: "#222",
+              color: "#fff", 
+              border: "none",
+              margin: 4,
+              fontWeight: 500,
+              cursor: "pointer",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+              height: 48,
+              padding: "0 32px",
+              borderRadius: 10
+            }}
+          >
             + Nueva Cita
           </button>
         </div>
 
         {/* Form section */}
         <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 2px 8px rgba(0,0,0,0.08)", padding: 24 }}>
-          <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Información personal</h3>
-          <p style={{ color: "#64748b", marginBottom: 20, fontSize: 14 }}>Actualiza tus datos de contacto</p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div>
+              <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Información personal</h3>
+              <p style={{ color: "#64748b", fontSize: 14 }}>
+                {isEditing ? "Modifica tus datos y guarda los cambios" : "Actualiza tus datos de contacto"}
+              </p>
+            </div>
+            {!isEditing && (
+              <button 
+                onClick={handleEdit}
+                style={{ 
+                  background: "#3b82f6", 
+                  color: "#fff", 
+                  borderRadius: 8, 
+                  padding: "8px 16px", 
+                  border: "none", 
+                  fontWeight: 500, 
+                  cursor: "pointer", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: 6,
+                  fontSize: 14
+                }}
+              >
+                <Edit3 size={16} />
+                Editar
+              </button>
+            )}
+          </div>
+
+          {/* Success/Error Messages */}
+          {success && (
+            <div style={{ 
+              background: "#dcfce7", 
+              color: "#166534", 
+              padding: "12px 16px", 
+              borderRadius: 8, 
+              marginBottom: 16,
+              border: "1px solid #bbf7d0"
+            }}>
+              {success}
+            </div>
+          )}
+          
+          {error && (
+            <div style={{ 
+              background: "#fef2f2", 
+              color: "#dc2626", 
+              padding: "12px 16px", 
+              borderRadius: 8, 
+              marginBottom: 16,
+              border: "1px solid #fecaca"
+            }}>
+              {error}
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
             <div>
               <p style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>Nombre Completo</p>
-              <Input placeholder={paciente?.nombre_completo || ''} style={{ background: "#fff" }} />
+              <Input 
+                value={formData.nombre_completo}
+                onChange={(e) => handleInputChange('nombre_completo', e.target.value)}
+                disabled={!isEditing}
+                style={{ 
+                  background: isEditing ? "#fff" : "#f8fafc",
+                  border: isEditing ? "1px solid #e5e7eb" : "1px solid #e5e7eb"
+                }}
+                placeholder="Ej: Juan Pérez"
+              />
             </div>
 
             <div>
               <p style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>DUI</p>
-              <Input placeholder={paciente?.dui || ''} style={{ background: "#fff" }} />
+              <Input 
+                value={formData.dui}
+                onChange={(e) => handleInputChange('dui', e.target.value)}
+                disabled={!isEditing}
+                style={{ 
+                  background: isEditing ? "#fff" : "#f8fafc",
+                  border: isEditing ? "1px solid #e5e7eb" : "1px solid #e5e7eb"
+                }}
+                placeholder="12345678-9"
+              />
             </div>
 
             <div>
               <p style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>Teléfono</p>
-              <Input placeholder={paciente?.telefono || ''} style={{ background: "#fff" }} />
+              <Input 
+                value={formData.telefono}
+                onChange={(e) => handleInputChange('telefono', e.target.value)}
+                disabled={!isEditing}
+                style={{ 
+                  background: isEditing ? "#fff" : "#f8fafc",
+                  border: isEditing ? "1px solid #e5e7eb" : "1px solid #e5e7eb"
+                }}
+                placeholder="70123456"
+              />
             </div>
 
             <div>
               <p style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>Correo Electrónico</p>
-              <Input placeholder={paciente?.correo || ''} style={{ background: "#fff" }} />
+              <Input 
+                value={formData.correo}
+                onChange={(e) => handleInputChange('correo', e.target.value)}
+                disabled={!isEditing}
+                style={{ 
+                  background: isEditing ? "#fff" : "#f8fafc",
+                  border: isEditing ? "1px solid #e5e7eb" : "1px solid #e5e7eb"
+                }}
+                placeholder="ejemplo@correo.com"
+              />
+            </div>
+
+            <div>
+              <p style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>Edad</p>
+              <Input 
+                type="number"
+                value={formData.edad}
+                onChange={(e) => handleInputChange('edad', e.target.value)}
+                disabled={!isEditing}
+                style={{ 
+                  background: isEditing ? "#fff" : "#f8fafc",
+                  border: isEditing ? "1px solid #e5e7eb" : "1px solid #e5e7eb"
+                }}
+                placeholder="25"
+                min="0"
+                max="120"
+              />
             </div>
           </div>
 
-          <button style={{ background: "#222", color: "#fff", borderRadius: 8, padding: "12px 24px", border: "none", marginTop: 8, fontWeight: 500, cursor: "pointer", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 8 }}>
-            + Actualizar información
-          </button>
+          {/* Action buttons */}
+          {isEditing && (
+            <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+              <button 
+                onClick={handleSave}
+                disabled={loading}
+                style={{ 
+                  background: "#22c55e", 
+                  color: "#fff", 
+                  borderRadius: 8, 
+                  padding: "12px 24px", 
+                  border: "none", 
+                  fontWeight: 500, 
+                  cursor: loading ? "not-allowed" : "pointer", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: 8,
+                  opacity: loading ? 0.7 : 1
+                }}
+              >
+                <Save size={16} />
+                {loading ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+              
+              <button 
+                onClick={handleCancel}
+                disabled={loading}
+                style={{ 
+                  background: "#ef4444", 
+                  color: "#fff", 
+                  borderRadius: 8, 
+                  padding: "12px 24px", 
+                  border: "none", 
+                  fontWeight: 500, 
+                  cursor: loading ? "not-allowed" : "pointer", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: 8,
+                  opacity: loading ? 0.7 : 1
+                }}
+              >
+                <X size={16} />
+                Cancelar
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

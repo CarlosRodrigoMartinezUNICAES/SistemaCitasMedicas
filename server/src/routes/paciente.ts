@@ -60,4 +60,157 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// PUT /api/paciente/:id - Update patient data
+router.put('/:id', async (req, res) => {
+    const id = req.params.id;
+    const { nombre_completo, telefono, correo, edad, dui } = req.body;
+    
+    console.log('\n=== Update paciente request ===');
+    console.log('id param:', id);
+    console.log('update data:', { nombre_completo, telefono, correo, edad, dui });
+
+    // Validate required fields
+    if (!nombre_completo || !telefono || !correo || !edad || !dui) {
+        console.log('❌ Validation failed: Missing required fields');
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Todos los campos son requeridos' 
+        });
+    }
+
+    // Validate data format according to DB constraints
+    const duiRegex = /^[0-9]{8}-[0-9]$/;
+    const telefonoRegex = /^[267][0-9]{7}$/;
+    const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
+    const nombreRegex = /^[A-Za-zÁÉÍÓÚÑáéíóúñ ]+$/;
+
+    if (!duiRegex.test(dui)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Formato de DUI inválido (debe ser: 12345678-9)' 
+        });
+    }
+
+    if (!telefonoRegex.test(telefono)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Formato de teléfono inválido (debe empezar con 2, 6 o 7 y tener 8 dígitos)' 
+        });
+    }
+
+    if (!emailRegex.test(correo)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Formato de correo electrónico inválido' 
+        });
+    }
+
+    if (!nombreRegex.test(nombre_completo)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'El nombre solo puede contener letras y espacios' 
+        });
+    }
+
+    if (edad < 0 || edad > 120) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'La edad debe estar entre 0 y 120 años' 
+        });
+    }
+
+    let conn: any;
+    try {
+        conn = await pool.getConnection();
+        console.log('✓ DB connection acquired');
+
+        // Check if paciente exists
+        const pacienteExists = await conn.query(
+            'SELECT id_paciente FROM Paciente WHERE id_usuario = ? OR id_paciente = ?',
+            [id, id]
+        );
+
+        if (pacienteExists.length === 0) {
+            conn.release();
+            console.log('❌ Paciente not found for id:', id);
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Paciente no encontrado' 
+            });
+        }
+
+        const pacienteId = pacienteExists[0].id_paciente;
+
+        // Check for duplicate DUI (excluding current patient)
+        const duiCheck = await conn.query(
+            'SELECT id_paciente FROM Paciente WHERE dui = ? AND id_paciente != ?',
+            [dui, pacienteId]
+        );
+
+        if (duiCheck.length > 0) {
+            conn.release();
+            console.log('❌ DUI already exists');
+            return res.status(400).json({ 
+                success: false, 
+                message: 'El DUI ya está registrado por otro paciente' 
+            });
+        }
+
+        // Check for duplicate email (excluding current patient)
+        const emailCheck = await conn.query(
+            'SELECT id_paciente FROM Paciente WHERE correo = ? AND id_paciente != ?',
+            [correo, pacienteId]
+        );
+
+        if (emailCheck.length > 0) {
+            conn.release();
+            console.log('❌ Email already exists');
+            return res.status(400).json({ 
+                success: false, 
+                message: 'El correo electrónico ya está registrado por otro paciente' 
+            });
+        }
+
+        // Update paciente data
+        const updateQuery = `
+            UPDATE Paciente 
+            SET nombre_completo = ?, telefono = ?, correo = ?, edad = ?, dui = ?
+            WHERE id_paciente = ?
+        `;
+
+        await conn.query(updateQuery, [
+            nombre_completo, 
+            telefono, 
+            correo, 
+            edad, 
+            dui, 
+            pacienteId
+        ]);
+
+        conn.release();
+        console.log('✅ Paciente updated successfully:', pacienteId);
+
+        res.json({ 
+            success: true, 
+            message: 'Información actualizada correctamente',
+            paciente: {
+                id_paciente: pacienteId,
+                nombre_completo,
+                telefono,
+                correo,
+                edad,
+                dui
+            }
+        });
+
+    } catch (error: any) {
+        console.error('❌ Error updating paciente:', error);
+        if (conn) conn.release();
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error del servidor al actualizar la información' 
+        });
+    }
+});
+
 export default router;
