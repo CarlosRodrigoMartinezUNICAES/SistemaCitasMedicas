@@ -1,4 +1,4 @@
-import { Calendar, Phone, User, Clock, Stethoscope, ArrowLeft } from "lucide-react";
+import { Calendar, Phone, User, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const cardStyle = {
@@ -38,7 +38,7 @@ const ghostButtonStyle = {
 type PacienteHistorialProps = {
   id_usuario?: string;
   onBack?: () => void;
-  onNavigate?: (page: 'citas' | 'historial' | 'perfil') => void;
+  onNavigate?: (page: 'citas' | 'historial' | 'perfil' | 'agendar') => void;
 };
 
 export default function PacienteHistorialMedico({ id_usuario, onBack, onNavigate }: PacienteHistorialProps) {
@@ -114,7 +114,10 @@ export default function PacienteHistorialMedico({ id_usuario, onBack, onNavigate
             </div>
             <p style={{ color: "#64748b", marginTop: 4 }}>Edad</p>
           </div>
-          <button style={{ ...buttonStyle, height: 48, padding: "0 32px", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+          <button 
+            onClick={() => onNavigate?.('agendar')}
+            style={{ ...buttonStyle, height: 48, padding: "0 32px", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
+          >
             + Nueva Cita
           </button>
         </div>
