@@ -29,28 +29,37 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Doctor no encontrado' });
         }
         const doctor = doctorResults[0];
+        const doctorId = doctor.id_doctor.toString();
 
         // Get statistics
-        const today = new Date().toISOString().split('T')[0];
+        // Build today's date in local timezone: YYYY-MM-DD
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const today = `${yyyy}-${mm}-${dd}`;
         
         // Total citas
         const totalCitasQuery = `SELECT COUNT(*) as total FROM Cita WHERE id_doctor = ?`;
-        const totalCitasResult = await conn.query(totalCitasQuery, [doctor.id_doctor]);
+        const totalCitasResult = await conn.query(totalCitasQuery, [doctorId]);
         
         // Citas hoy
         const citasHoyQuery = `SELECT COUNT(*) as total FROM Cita WHERE id_doctor = ? AND fecha = ?`;
-        const citasHoyResult = await conn.query(citasHoyQuery, [doctor.id_doctor, today]);
+        const citasHoyResult = await conn.query(citasHoyQuery, [doctorId, today]);
         
         // Citas pendientes
         const citasPendientesQuery = `SELECT COUNT(*) as total FROM Cita WHERE id_doctor = ? AND estado = 'Pendiente'`;
-        const citasPendientesResult = await conn.query(citasPendientesQuery, [doctor.id_doctor]);
+        const citasPendientesResult = await conn.query(citasPendientesQuery, [doctorId]);
         
         // Total pacientes únicos
         const totalPacientesQuery = `SELECT COUNT(DISTINCT id_paciente) as total FROM Cita WHERE id_doctor = ?`;
-        const totalPacientesResult = await conn.query(totalPacientesQuery, [doctor.id_doctor]);
+        const totalPacientesResult = await conn.query(totalPacientesQuery, [doctorId]);
 
         // Get all appointments for calendar
-        const appointmentsQuery = `SELECT c.id_cita, c.fecha, c.hora, c.estado, 
+        const appointmentsQuery = `SELECT c.id_cita,
+                                         DATE(c.fecha) AS fecha,
+                                         DATE_FORMAT(c.hora, '%H:%i') AS hora,
+                                         c.estado, 
                                          p.nombre_completo AS paciente_nombre, p.telefono AS paciente_telefono,
                                          e.nombre AS especialidad
                                   FROM Cita c
@@ -59,15 +68,19 @@ router.get('/:id', async (req, res) => {
                                   JOIN Especialidad e ON d.id_especialidad = e.id_especialidad
                                   WHERE c.id_doctor = ?
                                   ORDER BY c.fecha ASC, c.hora ASC`;
-        const appointments = await conn.query(appointmentsQuery, [doctor.id_doctor]);
+        const appointments = (await conn.query(appointmentsQuery, [doctorId])).map((appt: any) => ({
+            ...appt,
+            id_cita: appt.id_cita.toString() // Convert BigInt to string
+        }));
 
         conn.release();
 
+        // Convert BigInt counts to numbers for the stats
         const stats = {
-            total_citas: totalCitasResult[0]?.total || 0,
-            citas_hoy: citasHoyResult[0]?.total || 0,
-            citas_pendientes: citasPendientesResult[0]?.total || 0,
-            total_pacientes: totalPacientesResult[0]?.total || 0
+            total_citas: Number(totalCitasResult[0]?.total) || 0,
+            citas_hoy: Number(citasHoyResult[0]?.total) || 0,
+            citas_pendientes: Number(citasPendientesResult[0]?.total) || 0,
+            total_pacientes: Number(totalPacientesResult[0]?.total) || 0
         };
 
         console.log('Doctor found:', doctor);
@@ -77,7 +90,7 @@ router.get('/:id', async (req, res) => {
         res.json({ 
             success: true, 
             doctor: {
-                id_doctor: doctor.id_doctor,
+                id_doctor: doctor.id_doctor.toString(),
                 nombre_completo: doctor.nombre_completo,
                 especialidad: doctor.especialidad,
                 codigo_trabajador: doctor.codigo_trabajador,

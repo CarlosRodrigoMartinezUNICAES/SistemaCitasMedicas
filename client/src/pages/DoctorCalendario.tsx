@@ -21,7 +21,7 @@ type DoctorInfo = {
 };
 
 type Appointment = {
-  id_cita: string;
+  id_cita: string; // This is now handled as a string from the server
   fecha: string;
   hora: string;
   estado: string;
@@ -66,6 +66,13 @@ const ghostButtonStyle = {
 };
 
 export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: DoctorCalendarioProps) {
+  // Helper to format a Date to local YYYY-MM-DD
+  const toLocalYMD = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
   const [doctor, setDoctor] = useState<DoctorInfo | null>(null);
   const [stats, setStats] = useState<DoctorStats>({
     total_citas: 0,
@@ -76,6 +83,7 @@ export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: Doc
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<string>(toLocalYMD(new Date()));
 
   useEffect(() => {
     if (!id_usuario) return;
@@ -87,15 +95,43 @@ export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: Doc
     try {
       console.log('Fetching doctor data for id_usuario=', id_usuario);
       
-      // Fetch doctor info and stats
-      const res = await fetch(`http://localhost:3000/api/doctor/${encodeURIComponent(id_usuario)}`);
+      // Ensure id_usuario is a string and fetch doctor info and stats
+      const doctorId = id_usuario || ''; // Provide a default empty string if undefined
+      const res = await fetch(`http://localhost:3000/api/doctor/${encodeURIComponent(doctorId)}`);
       const data = await res.json();
       console.log('Doctor fetch response:', data);
       
       if (data.success) {
         setDoctor(data.doctor);
         setStats(data.stats);
-        setAppointments(data.appointments || []);
+        // Ensure all IDs are strings and fecha is normalized to YYYY-MM-DD
+        const processedAppointments = (data.appointments || []).map((appt: any) => {
+          const rawFecha = appt.fecha;
+          let fechaStr: string;
+          if (typeof rawFecha === 'string') {
+            // If ISO string or already YYYY-MM-DD, take the date part
+            fechaStr = rawFecha.includes('T') ? rawFecha.split('T')[0] : rawFecha;
+          } else {
+            // Date object -> to ISO date
+            fechaStr = new Date(rawFecha).toISOString().split('T')[0];
+          }
+          return {
+            ...appt,
+            id_cita: String(appt.id_cita),
+            fecha: fechaStr
+          } as Appointment;
+        });
+        setAppointments(processedAppointments);
+        console.log('Processed appointments sample:', processedAppointments.slice(0, 3));
+        // Auto-select a date with appointments if current selection has none
+        const datesWithApts: string[] = Array.from(new Set<string>(processedAppointments.map((a: Appointment) => a.fecha))).sort();
+        const hasForSelected = processedAppointments.some((a: Appointment) => a.fecha === selectedDate);
+        if (!hasForSelected && datesWithApts.length > 0) {
+          const todayLocal = toLocalYMD(new Date());
+          setSelectedDate(datesWithApts.includes(todayLocal) ? todayLocal : datesWithApts[0]);
+        }
+        const countForSelected = processedAppointments.filter((a: Appointment) => a.fecha === selectedDate).length;
+        console.log('Selected date:', selectedDate, 'appointments count:', countForSelected);
       } else {
         console.warn('Doctor not found or error', data);
       }
@@ -114,7 +150,7 @@ export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: Doc
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
 
-    const days = [];
+    const days = [] as Array<null | { day: number; dateStr: string; appointments: Appointment[]; isToday: boolean }>;
     
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
@@ -127,6 +163,7 @@ export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: Doc
       const dayAppointments = appointments.filter(apt => apt.fecha === dateStr);
       days.push({
         day,
+        dateStr,
         appointments: dayAppointments,
         isToday: new Date().toDateString() === new Date(year, month, day).toDateString()
       });
@@ -271,6 +308,9 @@ export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: Doc
             {generateCalendarDays().map((dayData, index) => (
               <div
                 key={index}
+                onClick={() => dayData && setSelectedDate(dayData.dateStr)}
+                role={dayData ? "button" : undefined}
+                aria-selected={dayData ? dayData.dateStr === selectedDate : undefined}
                 style={{
                   height: 80,
                   border: "1px solid #e5e7eb",
@@ -280,8 +320,9 @@ export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: Doc
                   alignItems: "center",
                   justifyContent: "center",
                   background: dayData ? "#fff" : "transparent",
-                  borderColor: dayData?.isToday ? "#3b82f6" : "#e5e7eb",
-                  backgroundColor: dayData?.isToday ? "#eff6ff" : dayData ? "#fff" : "transparent"
+                  cursor: dayData ? "pointer" : "default",
+                  borderColor: dayData?.dateStr === selectedDate ? "#0ea5e9" : dayData?.isToday ? "#3b82f6" : "#e5e7eb",
+                  backgroundColor: dayData?.dateStr === selectedDate ? "#e0f2fe" : dayData?.isToday ? "#eff6ff" : dayData ? "#fff" : "transparent"
                 }}
               >
                 {dayData && (
@@ -315,22 +356,22 @@ export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: Doc
           </div>
         </div>
 
-        {/* Citas del día actual */}
+        {/* Citas del día seleccionado */}
         {loading ? (
           <div style={{ color: "#64748b", fontSize: 16, marginTop: 24 }}>Cargando citas...</div>
         ) : (
           <div style={{ marginTop: 24 }}>
             <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16 }}>
-              Citas para hoy ({new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })})
+              {`Citas para ${new Date(selectedDate + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}`}
             </h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {appointments.filter(apt => apt.fecha === new Date().toISOString().split('T')[0]).length === 0 ? (
+              {appointments.filter(apt => apt.fecha === selectedDate).length === 0 ? (
                 <div style={{ color: "#64748b", fontSize: 16, textAlign: "center", padding: 24 }}>
-                  No hay citas agendadas para hoy
+                  No hay citas agendadas para esta fecha
                 </div>
               ) : (
                 appointments
-                  .filter(apt => apt.fecha === new Date().toISOString().split('T')[0])
+                  .filter(apt => apt.fecha === selectedDate)
                   .sort((a, b) => a.hora.localeCompare(b.hora))
                   .map((appointment) => (
                     <div key={appointment.id_cita} style={{ ...cardStyle, border: "2px dotted #60a5fa", textAlign: "left" }}>
