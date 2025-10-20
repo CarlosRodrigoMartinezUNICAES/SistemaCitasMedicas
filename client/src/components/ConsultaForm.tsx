@@ -3,6 +3,8 @@ import axios from 'axios';
 
 interface ConsultaFormProps {
   citaId: string;
+  userId: string;
+  userType: string;
   onSuccess?: () => void;
   onCancel?: () => void;
   initialData?: {
@@ -12,6 +14,8 @@ interface ConsultaFormProps {
 
 const ConsultaForm: React.FC<ConsultaFormProps> = ({ 
   citaId, 
+  userId,
+  userType,
   onSuccess, 
   onCancel,
   initialData 
@@ -32,8 +36,13 @@ const ConsultaForm: React.FC<ConsultaFormProps> = ({
     setError('');
 
     try {
-      await axios.post(`/api/citas/${citaId}/consulta`, {
+      await axios.post(`http://localhost:3000/api/citas/${citaId}/consulta`, {
         reporte_paciente: reporte
+      }, {
+        headers: {
+          'x-user-id': userId,
+          'x-user-type': userType
+        }
       });
       
       if (onSuccess) onSuccess();

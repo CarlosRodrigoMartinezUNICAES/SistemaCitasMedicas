@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { CalendarDays, Users, ClipboardList, BarChart2, ArrowLeft, Clock, User as UserIcon, Stethoscope } from "lucide-react";
+import ConsultaForm from "@/components/ConsultaForm";
 
 // Props aligned with DoctorCalendario for consistency
 type DoctorCitasProps = {
@@ -65,7 +65,19 @@ const navBarStyle: React.CSSProperties = {
   marginBottom: 24,
 };
 
+const simpleButtonStyle: React.CSSProperties = {
+  border: '1px solid #ccc',
+  padding: '8px 12px',
+  borderRadius: '6px',
+  color: '#333',
+  background: '#fff',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: 500,
+};
+
 export default function DoctorCitas({ id_usuario, nombre_completo, onBack, onNavigate }: DoctorCitasProps) {
+  const [selectedCitaIdForConsulta, setSelectedCitaIdForConsulta] = useState<string | null>(null);
   const [filtro, setFiltro] = useState("");
   const [doctor, setDoctor] = useState<DoctorInfo | null>({ nombre_completo } as DoctorInfo);
   const [stats, setStats] = useState<DoctorStats>({
@@ -249,7 +261,7 @@ export default function DoctorCitas({ id_usuario, nombre_completo, onBack, onNav
               onChange={(e) => setFiltro(e.target.value)}
               style={{ flex: 1, maxWidth: 320, border: "1px solid #e5e7eb", borderRadius: 8, padding: "8px 12px" }}
             />
-            <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700">Todos los estados</Button>
+                        <button style={{...simpleButtonStyle, flex: '0 0 auto', width: 'auto'}}>Todos los estados</button>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -310,6 +322,12 @@ export default function DoctorCitas({ id_usuario, nombre_completo, onBack, onNav
                   {updatingStatus === cita.id_cita && (
                     <p style={{ fontSize: 11, color: "#64748b", margin: 0, textAlign: "center" }}>Actualizando...</p>
                   )}
+                  <button 
+                    style={{...simpleButtonStyle, marginTop: '8px', width: '100%'}}
+                    onClick={() => setSelectedCitaIdForConsulta(cita.id_cita)}
+                  >
+                    Añadir Consulta
+                  </button>
                 </div>
               </div>
               ))
@@ -317,6 +335,22 @@ export default function DoctorCitas({ id_usuario, nombre_completo, onBack, onNav
           </div>
         </div>
       </div>
+      {selectedCitaIdForConsulta && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '600px' }}>
+            <ConsultaForm
+              citaId={selectedCitaIdForConsulta!}
+              userId={id_usuario || ''}
+              userType="Doctor"
+              onSuccess={() => {
+                setSelectedCitaIdForConsulta(null);
+                fetchDoctorData();
+              }}
+              onCancel={() => setSelectedCitaIdForConsulta(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
