@@ -249,7 +249,7 @@ export default function DoctorCitas({ id_usuario, nombre_completo, onBack, onNav
               onChange={(e) => setFiltro(e.target.value)}
               style={{ flex: 1, maxWidth: 320, border: "1px solid #e5e7eb", borderRadius: 8, padding: "8px 12px" }}
             />
-            <Button variant="outline">Todos los estados</Button>
+            <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700">Todos los estados</Button>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
