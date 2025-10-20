@@ -20,6 +20,16 @@ const ConsultaForm: React.FC<ConsultaFormProps> = ({
   onCancel,
   initialData 
 }) => {
+  const simpleButtonStyle: React.CSSProperties = {
+    border: '1px solid #ccc',
+    padding: '8px 12px',
+    borderRadius: '6px',
+    color: '#333',
+    background: '#fff',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 500,
+  };
   const [reporte, setReporte] = useState(initialData?.reporte_paciente || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -27,8 +37,8 @@ const ConsultaForm: React.FC<ConsultaFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!reporte.trim()) {
-      setError('El reporte del paciente es requerido');
+    if (!reporte.trim() || reporte.trim().length < 10) {
+      setError('El reporte del paciente es requerido y debe tener al menos 10 caracteres');
       return;
     }
 
@@ -48,7 +58,17 @@ const ConsultaForm: React.FC<ConsultaFormProps> = ({
       if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error('Error al guardar la consulta:', err);
-      setError(err.response?.data?.message || 'Error al guardar la consulta');
+      if (err.response) {
+        console.error('Error response:', err.response);
+        console.error('Error response data:', err.response.data);
+        setError(err.response.data.message || `Error del servidor: ${err.response.status}`);
+      } else if (err.request) {
+        console.error('Error request:', err.request);
+        setError('No se recibió respuesta del servidor');
+      } else {
+        console.error('Error message:', err.message);
+        setError(`Error en la configuración de la solicitud: ${err.message}`);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -103,7 +123,7 @@ const ConsultaForm: React.FC<ConsultaFormProps> = ({
                 type="button"
                 onClick={onCancel}
                 disabled={isSubmitting}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                style={simpleButtonStyle}
               >
                 Cancelar
               </button>
@@ -111,7 +131,7 @@ const ConsultaForm: React.FC<ConsultaFormProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              style={{...simpleButtonStyle, background: '#3b82f6', color: 'white', border: 'none'}}
             >
               {isSubmitting ? 'Guardando...' : 'Guardar Consulta'}
             </button>

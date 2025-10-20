@@ -8,6 +8,7 @@ import citaRoutes from './routes/cita';
 import doctorRoutes from './routes/doctor';
 import usuarioRoutes from './routes/usuario';
 import especialidadRoutes from './routes/especialidad';
+import consultaRoutes from './routes/consulta';
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +27,7 @@ app.use('/api/paciente', pacienteRoutes);
 app.use('/api/cita', citaRoutes);
 app.use('/api/doctor', doctorRoutes);
 app.use('/api/especialidades', especialidadRoutes);
+app.use('/api', consultaRoutes);
 
 // Connect to database and start server
 const PORT = process.env.PORT || 3000;

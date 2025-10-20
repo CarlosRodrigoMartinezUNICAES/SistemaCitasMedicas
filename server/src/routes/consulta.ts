@@ -3,10 +3,7 @@ import { pool } from '../utils/db';
 
 const router = Router();
 
-// Helper function to generate IDs
-const generateId = (prefix: string): string => {
-    return `${prefix}${Math.random().toString(36).substr(2, 8)}`;
-};
+
 
 // Add a new consultation (for doctors)
 router.post('/citas/:citaId/consulta', async (req, res) => {
@@ -24,10 +21,10 @@ router.post('/citas/:citaId/consulta', async (req, res) => {
         });
     }
 
-    if (!reporte_paciente) {
+    if (!reporte_paciente || reporte_paciente.length < 10) {
         return res.status(400).json({
             success: false,
-            message: 'El reporte del paciente es requerido'
+            message: 'El reporte del paciente es requerido y debe tener al menos 10 caracteres'
         });
     }
 
@@ -36,7 +33,7 @@ router.post('/citas/:citaId/consulta', async (req, res) => {
         await connection.beginTransaction();
 
         // Verify the appointment exists and is assigned to this doctor
-        const [cita] = await connection.query(
+        const cita = await connection.query(
             'SELECT * FROM Cita WHERE id_cita = ? AND id_doctor = ?',
             [citaId, doctorId]
         );
@@ -49,7 +46,7 @@ router.post('/citas/:citaId/consulta', async (req, res) => {
         }
 
         // Check if a consultation already exists for this appointment
-        const [existingConsulta] = await connection.query(
+        const existingConsulta = await connection.query(
             'SELECT id_consulta FROM Consulta WHERE id_cita = ?',
             [citaId]
         );
@@ -61,8 +58,11 @@ router.post('/citas/:citaId/consulta', async (req, res) => {
             });
         }
 
-        // Create new consultation
-        const consultaId = generateId('CO');
+        // Generate new consultation ID
+        const maxRes: any = await connection.query("SELECT MAX(CAST(SUBSTRING(id_consulta,3) AS UNSIGNED)) as maxId FROM Consulta");
+        const maxId = (maxRes && maxRes[0] && maxRes[0].maxId) ? Number(maxRes[0].maxId) : 0;
+        const nextNum = maxId + 1;
+        const consultaId = 'CO' + String(nextNum).padStart(4, '0');
         
         await connection.query(
             'INSERT INTO Consulta (id_consulta, reporte_paciente, fecha_consulta, id_cita) VALUES (?, ?, CURDATE(), ?)',
