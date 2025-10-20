@@ -6,7 +6,9 @@ const router = Router();
 
 // Helper function to generate IDs
 const generateId = (prefix: string): string => {
-    return `${prefix}${uuidv4().substring(0, 8)}`;
+    // Generate a random 8-digit number and ensure it starts with P followed by numbers
+    const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+    return `${prefix}${randomNumber}`.substring(0, 9); // Ensures P followed by 8 digits
 };
 
 // Register a new patient
@@ -26,12 +28,12 @@ router.post('/register/paciente', async (req, res) => {
         await connection.beginTransaction();
 
         // Check if username already exists
-        const [existingUser] = await connection.query(
+        const [rows] = await connection.query(
             'SELECT id_usuario FROM Usuario WHERE username = ?',
             [username]
-        );
+        ) as any[][];
 
-        if (existingUser.length > 0) {
+        if (rows && rows.length > 0) {
             return res.status(400).json({
                 success: false,
                 message: 'El nombre de usuario ya está en uso'
@@ -90,12 +92,12 @@ router.post('/register/doctor', async (req, res) => {
         await connection.beginTransaction();
 
         // Check if username already exists
-        const [existingUser] = await connection.query(
+        const [rows] = await connection.query(
             'SELECT id_usuario FROM Usuario WHERE username = ?',
             [username]
-        );
+        ) as any[][];
 
-        if (existingUser.length > 0) {
+        if (rows && rows.length > 0) {
             return res.status(400).json({
                 success: false,
                 message: 'El nombre de usuario ya está en uso'
@@ -103,12 +105,12 @@ router.post('/register/doctor', async (req, res) => {
         }
 
         // Check if worker code is already in use
-        const [existingDoctor] = await connection.query(
+        const [doctorRows] = await connection.query(
             'SELECT id_doctor FROM Doctor WHERE codigo_trabajador = ?',
             [codigo_trabajador]
-        );
+        ) as any[][];
 
-        if (existingDoctor.length > 0) {
+        if (doctorRows && doctorRows.length > 0) {
             return res.status(400).json({
                 success: false,
                 message: 'El código de trabajador ya está en uso'
@@ -135,12 +137,6 @@ router.post('/register/doctor', async (req, res) => {
         await connection.query(
             'UPDATE Usuario SET estado = "Activo" WHERE id_usuario = ?',
             [userId]
-        );
-
-        // Remove from pending registrations
-        await connection.query(
-            'DELETE FROM RegistroPendiente WHERE id_registro = ?',
-            [registroId]
         );
 
         await connection.commit();

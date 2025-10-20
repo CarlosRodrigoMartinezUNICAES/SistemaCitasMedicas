@@ -10,7 +10,7 @@ const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => 
 type PacientePerfilProps = {
   id_usuario?: string;
   onBack?: () => void;
-  onNavigate?: (page: 'citas' | 'historial' | 'perfil') => void;
+  onNavigate?: (page: 'citas' | 'historial' | 'perfil' | 'agendar') => void;
 };
 
 export default function PacientePerfil({ id_usuario, onBack, onNavigate }: PacientePerfilProps) {
