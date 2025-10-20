@@ -165,7 +165,7 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
                   cita.estado === 'Cancelada' ? "#94a3b8" : "#3b82f6"
                 }`,
                 position: 'relative',
-                paddingRight: '80px'
+                paddingRight: '16px'
               }}>
                 <div style={{ 
                   position: 'absolute', 
@@ -209,8 +209,15 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
                       position: 'absolute',
                       bottom: 16,
                       right: 16,
-                      padding: "4px 12px",
+                      padding: "4px 8px",
+                      width: 'auto',
+                      maxWidth: 'none',
+                      height: '28px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       fontSize: 12,
+                      lineHeight: '1',
                       borderRadius: 6,
                       border: "1px solid #dc2626",
                       background: cancelling === cita.id_cita ? "#f5f5f5" : "#fff",
@@ -219,6 +226,7 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
                       opacity: cancelling === cita.id_cita ? 0.7 : 1,
                       whiteSpace: "nowrap",
                       transition: 'all 0.2s',
+                      boxSizing: 'border-box',
                       ...(cancelling !== cita.id_cita && {
                         ':hover': {
                           background: '#fef2f2',
