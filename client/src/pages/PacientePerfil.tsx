@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // Minimal input component
 const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
-  <input {...props} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e5e7eb', ...props.style }} />
+  <input {...props} style={{ maxWidth: 320, width: '100%', margin: '0 auto', padding: '8px 10px', borderRadius: 8, border: '1px solid #e5e7eb', ...props.style }} />
 );
 
 type PacientePerfilProps = {
@@ -215,14 +215,17 @@ export default function PacientePerfil({ id_usuario, onBack, onNavigate }: Pacie
                   background: "#3b82f6", 
                   color: "#fff", 
                   borderRadius: 8, 
-                  padding: "8px 16px", 
+                  padding: "8px 20px", 
                   border: "none", 
                   fontWeight: 500, 
                   cursor: "pointer", 
-                  display: "flex", 
+                  display: "inline-flex", 
                   alignItems: "center", 
                   gap: 6,
-                  fontSize: 14
+                  fontSize: 14,
+                  maxWidth: 120,
+                  minWidth: 80,
+                  width: "auto"
                 }}
               >
                 <Edit3 size={16} />
