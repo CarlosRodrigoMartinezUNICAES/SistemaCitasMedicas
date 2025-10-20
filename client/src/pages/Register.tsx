@@ -23,8 +23,7 @@ const Register: React.FC<RegisterProps> = ({ onBack, onSuccess }) => {
     dui: '',
     password: '',
     confirmPassword: '',
-    doctorPassword: '',
-    especialidad: 'E0001',
+    especialidad: '',
   });
   
   const [especialidades, setEspecialidades] = useState<Especialidad[]>([]);
@@ -45,9 +44,10 @@ const Register: React.FC<RegisterProps> = ({ onBack, onSuccess }) => {
             especialidad: prev.especialidad || sortedEspecialidades[0]?.id_especialidad || ''
           }));
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading specialties:', error);
-        setGeneralError('Error al cargar las especialidades');
+        const errorMessage = error.response?.data?.message || error.message || 'Error al cargar las especialidades';
+        setGeneralError(`Error al cargar las especialidades: ${errorMessage}`);
       }
     };
     
@@ -121,13 +121,6 @@ const Register: React.FC<RegisterProps> = ({ onBack, onSuccess }) => {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
     
-    if (formData.tipo_usuario === 'Doctor') {
-      if (!formData.doctorPassword) {
-        newErrors.doctorPassword = 'La contraseña de doctor es requerida';
-      } else if (formData.doctorPassword !== '1234') {
-        newErrors.doctorPassword = 'Contraseña de doctor incorrecta';
-      }
-    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -172,7 +165,6 @@ const Register: React.FC<RegisterProps> = ({ onBack, onSuccess }) => {
         username: formData.email,
         password: formData.password,
         nombre_completo: `${formData.nombre} ${formData.apellido}`,
-        codigo_trabajador: formData.doctorPassword,
         telefono: formData.telefono,
         id_especialidad: formData.especialidad
       } : {
@@ -197,7 +189,7 @@ const Register: React.FC<RegisterProps> = ({ onBack, onSuccess }) => {
       console.log('Registration response:', response.data);
       
       if (response.data.success) {
-        onSuccess(response.data.userId, formData.tipo_usuario);
+        onSuccess(response.data.userId, formData.tipo_usuario, `${formData.nombre} ${formData.apellido}`);
       } else {
         setGeneralError(response.data.message || 'Error en el registro. Por favor, inténtalo de nuevo.');
       }
@@ -247,22 +239,28 @@ const Register: React.FC<RegisterProps> = ({ onBack, onSuccess }) => {
           
           {formData.tipo_usuario === 'Doctor' && (
             <div style={styles.formGroup}>
-              <label htmlFor="doctorPassword" style={styles.label}>
-                Código de Trabajador
-              </label>
-              <input
-                type="password"
-                id="doctorPassword"
-                name="doctorPassword"
-                value={formData.doctorPassword}
-                onChange={handleChange}
-                style={styles.input}
-                placeholder="Ingresa tu código de trabajador"
-              />
-              {errors.doctorPassword && (
-                <span style={styles.error}>{errors.doctorPassword}</span>
-              )}
-            </div>
+                <label htmlFor="especialidad" style={styles.label}>
+                  Especialidad
+                </label>
+                <select
+                  id="especialidad"
+                  name="especialidad"
+                  value={formData.especialidad}
+                  onChange={handleChange}
+                  style={styles.select}
+                  disabled={especialidades.length === 0}
+                >
+                  {especialidades.length === 0 ? (
+                    <option>Cargando especialidades...</option>
+                  ) : (
+                    especialidades.map(esp => (
+                      <option key={esp.id_especialidad} value={esp.id_especialidad}>
+                        {esp.nombre}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
           )}
           
           <div style={styles.formGroup}>

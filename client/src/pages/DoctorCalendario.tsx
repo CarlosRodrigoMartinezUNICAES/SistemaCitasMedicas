@@ -3,6 +3,7 @@ import { CalendarDays, Users, ClipboardList, BarChart2, ArrowLeft, Clock, User, 
 
 type DoctorCalendarioProps = {
   id_usuario?: string;
+  nombre_completo?: string;
   onBack?: () => void;
   onNavigate?: (page: 'calendario' | 'citas' | 'pacientes' | 'reportes') => void;
 };
@@ -65,7 +66,7 @@ const ghostButtonStyle = {
   fontSize: 15
 };
 
-export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: DoctorCalendarioProps) {
+export default function DoctorCalendario({ id_usuario, nombre_completo, onBack, onNavigate }: DoctorCalendarioProps) {
   // Helper to format a Date to local YYYY-MM-DD
   const toLocalYMD = (date: Date) => {
     const y = date.getFullYear();
@@ -73,7 +74,7 @@ export default function DoctorCalendario({ id_usuario, onBack, onNavigate }: Doc
     const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
   };
-  const [doctor, setDoctor] = useState<DoctorInfo | null>(null);
+  const [doctor, setDoctor] = useState<DoctorInfo | null>({ nombre_completo } as DoctorInfo);
   const [stats, setStats] = useState<DoctorStats>({
     total_citas: 0,
     citas_hoy: 0,

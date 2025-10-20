@@ -37,12 +37,13 @@ const ghostButtonStyle = {
 
 type PacienteHistorialProps = {
   id_usuario?: string;
+  nombre_completo?: string;
   onBack?: () => void;
   onNavigate?: (page: 'citas' | 'historial' | 'perfil' | 'agendar') => void;
 };
 
-export default function PacienteHistorialMedico({ id_usuario, onBack, onNavigate }: PacienteHistorialProps) {
-  const [paciente, setPaciente] = useState<any>(null);
+export default function PacienteHistorialMedico({ id_usuario, nombre_completo, onBack, onNavigate }: PacienteHistorialProps) {
+  const [paciente, setPaciente] = useState<any>({ nombre_completo });
   const [consultas, setConsultas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 

@@ -6,7 +6,8 @@ const router = Router();
 // Get all specialties
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id_especialidad as id_especialidad, nombre, descripcion FROM Especialidad');
+        const rows = await pool.query('SELECT id_especialidad as id_especialidad, nombre, descripcion FROM Especialidad');
+        console.log('Especialidades from DB:', rows);
         res.json({
             success: true,
             data: rows

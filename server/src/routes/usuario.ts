@@ -77,10 +77,10 @@ router.post('/register/paciente', async (req, res) => {
 
 // Register a new doctor (no approval needed in this version)
 router.post('/register/doctor', async (req, res) => {
-    const { username, password, nombre_completo, codigo_trabajador, telefono, id_especialidad } = req.body;
+    const { username, password, nombre_completo, telefono, id_especialidad } = req.body;
 
     // Validate required fields
-    if (!username || !password || !nombre_completo || !codigo_trabajador || !id_especialidad) {
+    if (!username || !password || !nombre_completo || !id_especialidad) {
         return res.status(400).json({
             success: false,
             message: 'Todos los campos son requeridos'
@@ -92,34 +92,41 @@ router.post('/register/doctor', async (req, res) => {
         await connection.beginTransaction();
 
         // Check if username already exists
-        const [rows] = await connection.query(
+        const existingUsers = await connection.query(
             'SELECT id_usuario FROM Usuario WHERE username = ?',
             [username]
-        ) as any[][];
+        );
 
-        if (rows && rows.length > 0) {
+        if (Array.isArray(existingUsers) && existingUsers.length > 0) {
             return res.status(400).json({
                 success: false,
                 message: 'El nombre de usuario ya está en uso'
             });
         }
 
-        // Check if worker code is already in use
-        const [doctorRows] = await connection.query(
-            'SELECT id_doctor FROM Doctor WHERE codigo_trabajador = ?',
-            [codigo_trabajador]
-        ) as any[][];
-
-        if (doctorRows && doctorRows.length > 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'El código de trabajador ya está en uso'
-            });
+        // Generate sequential id_doctor
+        const maxIdResult = await connection.query("SELECT MAX(id_usuario) as maxId FROM Usuario WHERE id_usuario LIKE 'D%'");
+        let nextIdNumber = 1;
+        if (maxIdResult && maxIdResult.length > 0 && maxIdResult[0].maxId) {
+            const lastId = maxIdResult[0].maxId;
+            const lastIdNumber = parseInt(lastId.substring(1), 10);
+            nextIdNumber = lastIdNumber + 1;
         }
+        const newDoctorId = `D${nextIdNumber.toString().padStart(4, '0')}`;
+
+        // Generate sequential codigo_trabajador
+        const maxCodeResult = await connection.query('SELECT MAX(codigo_trabajador) as maxCode FROM Doctor');
+        let nextCodeNumber = 1;
+        if (maxCodeResult && maxCodeResult.length > 0 && maxCodeResult[0].maxCode) {
+            const lastCode = maxCodeResult[0].maxCode;
+            const lastCodeNumber = parseInt(lastCode.substring(3), 10);
+            nextCodeNumber = lastCodeNumber + 1;
+        }
+        const newCodigoTrabajador = `DOC${nextCodeNumber.toString().padStart(3, '0')}`;
 
         // In a real app, you should hash the password with bcrypt
         const passwordHash = password; // await bcrypt.hash(password, 10);
-        const userId = generateId('D');
+        const userId = newDoctorId;
         
         // Create user
         await connection.query(
@@ -130,28 +137,22 @@ router.post('/register/doctor', async (req, res) => {
         // Create doctor
         await connection.query(
             'INSERT INTO Doctor (id_doctor, id_usuario, nombre_completo, codigo_trabajador, telefono, id_especialidad) VALUES (?, ?, ?, ?, ?, ?)',
-            [userId, userId, nombre_completo, codigo_trabajador, telefono || null, id_especialidad]
-        );
-
-        // Update user status to active
-        await connection.query(
-            'UPDATE Usuario SET estado = "Activo" WHERE id_usuario = ?',
-            [userId]
+            [newDoctorId, userId, nombre_completo, newCodigoTrabajador, telefono || null, id_especialidad]
         );
 
         await connection.commit();
 
         res.json({
             success: true,
-            message: 'Médico aprobado exitosamente',
+            message: 'Médico registrado exitosamente',
             doctorId: userId
         });
     } catch (error) {
         await connection.rollback();
-        console.error('Error approving doctor:', error);
+        console.error('Error registering doctor:', error);
         res.status(500).json({
             success: false,
-            message: 'Error al aprobar el médico'
+            message: 'Error al registrar el médico'
         });
     } finally {
         connection.release();

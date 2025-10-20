@@ -38,12 +38,13 @@ const ghostButtonStyle = {
 
 type PacienteCitasProps = {
   id_usuario?: string;
+  nombre_completo?: string;
   onBack?: () => void;
   onNavigate?: (page: 'citas' | 'historial' | 'perfil' | 'agendar') => void;
 };
 
-export default function PacienteCitas({ id_usuario, onBack, onNavigate }: PacienteCitasProps) {
-  const [paciente, setPaciente] = useState<any>(null);
+export default function PacienteCitas({ id_usuario, nombre_completo, onBack, onNavigate }: PacienteCitasProps) {
+  const [paciente, setPaciente] = useState<any>({ nombre_completo });
   const [citas, setCitas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [cancelling, setCancelling] = useState<string | null>(null);

@@ -66,14 +66,14 @@ const App: React.FC = () => {
     }
   };
 
-  const handleLoginSuccess = (userId: string, tipo: string) => {
-    console.log('handleLoginSuccess called with', { userId, tipo });
+  const handleLoginSuccess = (userId: string, tipo: string, nombre_completo?: string) => {
+    console.log('handleLoginSuccess called with', { userId, tipo, nombre_completo });
     if (tipo === 'Paciente') {
       console.log('Routing to paciente-citas page for', userId);
-      setRoute({ name: 'paciente-citas', id_usuario: userId });
+      setRoute({ name: 'paciente-citas', id_usuario: userId, nombre_completo });
     } else if (tipo === 'Doctor') {
       console.log('Routing to doctor-calendario page for', userId);
-      setRoute({ name: 'doctor-calendario', id_usuario: userId });
+      setRoute({ name: 'doctor-calendario', id_usuario: userId, nombre_completo });
     } else {
       console.log('Unknown user type, routing to landing');
       setRoute({ name: 'landing' });
@@ -113,7 +113,7 @@ const App: React.FC = () => {
             </div>
           );
         case 'paciente-citas':
-          return <div style={{background: 'rgba(0,255,0,0.1)', border: '2px solid green'}}><span>DEBUG: PacienteCitas</span><PacienteCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div>;
+          return <div style={{background: 'rgba(0,255,0,0.1)', border: '2px solid green'}}><span>DEBUG: PacienteCitas</span><PacienteCitas id_usuario={route.id_usuario} nombre_completo={route.nombre_completo} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div>;
         case 'paciente-historial':
           return <div style={{background: 'rgba(255,255,0,0.1)', border: '2px solid orange'}}><span>DEBUG: PacienteHistorialMedico</span><PacienteHistorialMedico id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div>;
         case 'paciente-perfil':

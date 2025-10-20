@@ -9,12 +9,13 @@ const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => 
 
 type PacientePerfilProps = {
   id_usuario?: string;
+  nombre_completo?: string;
   onBack?: () => void;
   onNavigate?: (page: 'citas' | 'historial' | 'perfil' | 'agendar') => void;
 };
 
-export default function PacientePerfil({ id_usuario, onBack, onNavigate }: PacientePerfilProps) {
-  const [paciente, setPaciente] = useState<any>(null);
+export default function PacientePerfil({ id_usuario, nombre_completo, onBack, onNavigate }: PacientePerfilProps) {
+  const [paciente, setPaciente] = useState<any>({ nombre_completo });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

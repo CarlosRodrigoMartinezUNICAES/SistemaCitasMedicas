@@ -5,6 +5,7 @@ import { CalendarDays, Users, ClipboardList, BarChart2, ArrowLeft, Clock, User a
 // Props aligned with DoctorCalendario for consistency
 type DoctorCitasProps = {
   id_usuario?: string;
+  nombre_completo?: string;
   onBack?: () => void;
   onNavigate?: (page: "calendario" | "citas" | "pacientes" | "reportes") => void;
 };
@@ -64,9 +65,9 @@ const navBarStyle: React.CSSProperties = {
   marginBottom: 24,
 };
 
-export default function DoctorCitas({ id_usuario, onBack, onNavigate }: DoctorCitasProps) {
+export default function DoctorCitas({ id_usuario, nombre_completo, onBack, onNavigate }: DoctorCitasProps) {
   const [filtro, setFiltro] = useState("");
-  const [doctor, setDoctor] = useState<DoctorInfo | null>(null);
+  const [doctor, setDoctor] = useState<DoctorInfo | null>({ nombre_completo } as DoctorInfo);
   const [stats, setStats] = useState<DoctorStats>({
     total_citas: 0,
     citas_hoy: 0,
