@@ -1,0 +1,75 @@
+# Windsurf Rules for Sistema de Citas Médicas
+
+## Project Overview
+- Minimal medical appointment management system.
+- Frontend: React + Vite + TypeScript in `client/`.
+- Backend: Express + TypeScript + MariaDB in `server/`.
+- Database schema: `SistemaCitasMedicasMariaDB.sql`.
+
+## Tech Stack
+- Frontend deps: React, ReactDOM, axios, react-transition-group, lucide-react.
+- Tooling: Vite, TypeScript, ESLint.
+- Backend deps: express, cors, dotenv, mariadb.
+
+## How to Run Locally
+- Database: import schema first
+  - `source SistemaCitasMedicasMariaDB.sql`
+- Backend
+  - `cd server && npm install && npm run dev`
+- Frontend
+  - `cd client && npm install && npm run dev`
+
+## Source Layout
+- Frontend pages: `client/src/pages/` (e.g., `LandingPage.tsx`, `Login.tsx`).
+- Backend routes: `server/src/routes/`.
+- DB utils: `server/src/utils/db.ts` (MariaDB pool).
+
+## Conventions & Constraints
+- Keep UI minimal and responsive. No heavy UI libraries or custom CSS frameworks beyond what already exists.
+- New pages go in `client/src/pages/` with TypeScript props interfaces.
+- API calls via axios from the client; keep them centralized per page/component.
+- Always scroll to top before navigation transitions to avoid visual flash.
+- Error responses shape: `{ success: false, message: string }`.
+- Validate incoming data against DB constraints defined in `SistemaCitasMedicasMariaDB.sql`.
+- Prefer percentage widths, `maxWidth`, and media queries to maintain responsiveness.
+
+## Backend Guidelines
+- Use RESTful route structure in `server/src/routes/`.
+- Keep DB access through the shared MariaDB pool in `server/src/utils/db.ts`.
+- Do not bypass parameter validation or DB constraints.
+- Keep environment-specific configuration in `.env` (never commit secrets).
+
+## Database Rules
+- Respect strict ID patterns and data validation (names, phone, email, DUI, age) as enforced in SQL schema.
+- Do not alter schema constraints unless explicitly requested; surface validation errors to the client using the project error format.
+
+## UI/UX Rules
+- Pages must be responsive for mobile, tablet, desktop.
+- Landing page cards align horizontally on wide screens.
+- Smooth transitions (about 400ms) and avoid jarring flashes by scrolling to top pre-route change.
+
+## Code Quality
+- Keep code TypeScript-typed and simple; avoid unnecessary abstractions.
+- Follow ESLint configuration in the repo; run `npm run lint` in `client/` when modifying frontend.
+- Keep imports minimal; remove unused code.
+
+## Assistant Behavior (Very Important)
+- When adding features:
+  - Frontend: create new pages/components under `client/src/pages/` and wire routes minimally.
+  - Backend: add REST endpoints under `server/src/routes/` and use `utils/db.ts` for DB access.
+- Do not introduce new UI kits or global CSS frameworks.
+- Do not change DB constraints without explicit instruction; instead, adapt validation in code.
+- Maintain API response shape and error handling contract.
+- Before running servers, check for existing dev servers to avoid port conflicts.
+- Never commit secrets; use environment variables loaded by `dotenv` in `server/`.
+
+## Common Tasks
+- Add a page: create `client/src/pages/MyPage.tsx`, ensure responsiveness, and keep transitions/scroll behavior.
+- Add a route: create a file under `server/src/routes/`, export router, integrate into server entry.
+- Connect to DB: use the shared pool from `server/src/utils/db.ts` only.
+
+## References
+- Copilot instructions: `.github/copilot-instructions.md`.
+- Project intro: `README.md`.
+- Client scripts: `client/package.json`.
+- Server scripts: `server/package.json`.

@@ -4,12 +4,13 @@ import React, { useState, useEffect } from "react";
 import { User, Stethoscope, CalendarDays, Users, BarChart3 } from "lucide-react";
 
 const cardStyle: React.CSSProperties = {
-  width: 380,
+  width: '100%',
+  maxWidth: 340,
   background: "linear-gradient(145deg, #ffffff 0%, #f0f9ff 100%)",
-  borderRadius: 20,
-  boxShadow: "0 8px 32px rgba(59, 130, 246, 0.1)",
-  margin: 8,
-  padding: 32,
+  borderRadius: 16,
+  boxShadow: "0 4px 16px rgba(59, 130, 246, 0.08)",
+  margin: '8px auto',
+  padding: '20px 12px',
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -24,15 +25,15 @@ const cardStyle: React.CSSProperties = {
 const buttonStyle: React.CSSProperties = {
   background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
   color: "#fff",
-  borderRadius: 12,
-  padding: "14px 28px",
+  borderRadius: 10,
+  padding: "10px 20px",
   border: "none",
-  marginTop: 16,
+  marginTop: 12,
   cursor: "pointer",
   fontWeight: 600,
-  fontSize: 16,
+  fontSize: 14,
   transition: "all 0.3s ease",
-  boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
+  boxShadow: "0 2px 8px rgba(59, 130, 246, 0.18)",
   position: "relative",
   overflow: "hidden"
 };
@@ -71,8 +72,8 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
           ? (hoveredCard === type ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)')
           : 'translateY(30px) scale(0.95)',
         boxShadow: hoveredCard === type 
-          ? '0 20px 40px rgba(59, 130, 246, 0.2)' 
-          : '0 8px 32px rgba(59, 130, 246, 0.1)',
+          ? '0 10px 25px rgba(59, 130, 246, 0.18)' 
+          : '0 4px 16px rgba(59, 130, 246, 0.08)',
         border: hoveredCard === type 
           ? '2px solid rgba(59, 130, 246, 0.3)' 
           : '1px solid rgba(59, 130, 246, 0.1)',
@@ -100,23 +101,23 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
       
       <div style={{ 
         background: iconBg, 
-        padding: 20, 
+        padding: 14, 
         borderRadius: "50%", 
-        marginBottom: 20,
+        marginBottom: 14,
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: hoveredCard === type ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0deg)',
         boxShadow: hoveredCard === type 
-          ? '0 8px 25px rgba(59, 130, 246, 0.3)' 
-          : '0 4px 15px rgba(59, 130, 246, 0.2)'
+          ? '0 4px 16px rgba(59, 130, 246, 0.25)' 
+          : '0 2px 8px rgba(59, 130, 246, 0.12)'
       }}>
         {icon}
       </div>
       
       <h2 style={{ 
-        fontSize: 24, 
+        fontSize: 19, 
         fontWeight: 700, 
         color: "#1e293b", 
-        marginBottom: 12,
+        marginBottom: 10,
         background: gradient,
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
@@ -127,25 +128,25 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
       
       <p style={{ 
         color: "#64748b", 
-        fontSize: 15, 
-        marginBottom: 20, 
-        lineHeight: 1.6 
+        fontSize: 13, 
+        marginBottom: 14, 
+        lineHeight: 1.5 
       }}>
         {description}
       </p>
       
       <ul style={{ 
         color: "#475569", 
-        fontSize: 14, 
-        marginBottom: 28, 
+        fontSize: 12, 
+        marginBottom: 18, 
         textAlign: "left", 
         listStyle: "none",
         padding: 0
       }}>
         {features.map((feature, index) => (
           <li key={index} style={{
-            marginBottom: 8,
-            paddingLeft: 20,
+            marginBottom: 6,
+            paddingLeft: 16,
             position: 'relative',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: hoveredCard === type ? 'translateX(5px)' : 'translateX(0)',
@@ -155,8 +156,8 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
               position: 'absolute',
               left: 0,
               top: '50%',
-              width: 6,
-              height: 6,
+              width: 5,
+              height: 5,
               borderRadius: '50%',
               background: gradient,
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -172,8 +173,8 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
           ...buttonStyle,
           transform: hoveredCard === type ? 'scale(1.05)' : 'scale(1)',
           boxShadow: hoveredCard === type 
-            ? '0 8px 25px rgba(59, 130, 246, 0.4)' 
-            : '0 4px 15px rgba(59, 130, 246, 0.3)',
+            ? '0 4px 16px rgba(59, 130, 246, 0.3)' 
+            : '0 2px 8px rgba(59, 130, 246, 0.18)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
         onClick={() => handleCardClick(type)}
@@ -199,7 +200,7 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
       flexDirection: "column", 
       alignItems: "center", 
       justifyContent: "center",
-      padding: "40px 24px",
+      padding: "18px 4px",
       position: "relative",
       overflow: "hidden"
     }}>
@@ -241,16 +242,16 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
       {/* Header */}
       <div style={{ 
         textAlign: "center", 
-        marginBottom: 60,
+        marginBottom: 24,
         opacity: isLoaded ? 1 : 0,
         transform: isLoaded ? 'translateY(0)' : 'translateY(-30px)',
         transition: 'all 0.8s ease'
       }}>
         <h1 style={{ 
-          fontSize: 48, 
+          fontSize: 32, 
           fontWeight: 800, 
           color: "#1e293b",
-          marginBottom: 16,
+          marginBottom: 10,
           textShadow: '0 2px 10px rgba(59, 130, 246, 0.1)',
           letterSpacing: '-0.02em'
         }}>
@@ -258,9 +259,9 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
         </h1>
         <p style={{ 
           color: "#475569", 
-          fontSize: 20,
+          fontSize: 15,
           fontWeight: 400,
-          maxWidth: 600,
+          maxWidth: '90%',
           margin: '0 auto',
           textShadow: '0 1px 5px rgba(59, 130, 246, 0.1)'
         }}>
@@ -271,11 +272,13 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
       {/* Main Cards Container - Horizontal Layout */}
       <div style={{ 
         display: "flex", 
-        gap: 40, 
+        gap: 16, 
         justifyContent: "center", 
         flexWrap: "wrap",
-        maxWidth: 1200,
-        marginBottom: 80
+        maxWidth: '100%',
+        width: '100%',
+        marginBottom: 32,
+        padding: '0 8px'
       }}>
         <AnimatedCard
           type="Paciente"
@@ -311,32 +314,33 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
       {/* Features Section */}
       <div style={{ 
         display: "grid", 
-        gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", 
-        gap: 40, 
-        maxWidth: 1000, 
+        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
+        gap: 16, 
+        maxWidth: '90%', 
+        width: '100%',
         textAlign: "center",
         opacity: isLoaded ? 1 : 0,
         transform: isLoaded ? 'translateY(0)' : 'translateY(30px)',
         transition: 'all 0.8s ease 0.3s'
       }}>
         {[
-          { icon: <CalendarDays size={32} color="#3b82f6" />, title: "Gestión de Citas", desc: "Sistema completo para agendar y administrar citas médicas" },
-          { icon: <Users size={32} color="#22c55e" />, title: "Control de Pacientes", desc: "Registro y seguimiento del historial médico de pacientes" },
-          { icon: <BarChart3 size={32} color="#3b82f6" />, title: "Reportes y Análisis", desc: "Estadísticas y reportes para mejorar la gestión clínica" }
+          { icon: <CalendarDays size={24} color="#3b82f6" />, title: "Gestión de Citas", desc: "Sistema completo para agendar y administrar citas médicas" },
+          { icon: <Users size={24} color="#22c55e" />, title: "Control de Pacientes", desc: "Registro y seguimiento del historial médico de pacientes" },
+          { icon: <BarChart3 size={24} color="#3b82f6" />, title: "Reportes y Análisis", desc: "Estadísticas y reportes para mejorar la gestión clínica" }
         ].map((feature, index) => (
           <div key={index} style={{
             background: 'rgba(255,255,255,0.7)',
             backdropFilter: 'blur(10px)',
-            borderRadius: 20,
-            padding: 32,
+            borderRadius: 16,
+            padding: 14,
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: hoveredFeature === index ? 'translateY(-5px)' : 'translateY(0)',
             boxShadow: hoveredFeature === index 
-              ? '0 8px 25px rgba(59, 130, 246, 0.2)' 
-              : '0 4px 20px rgba(59, 130, 246, 0.1)',
+              ? '0 4px 16px rgba(59, 130, 246, 0.18)' 
+              : '0 2px 8px rgba(59, 130, 246, 0.08)',
             border: hoveredFeature === index 
-              ? '2px solid rgba(59, 130, 246, 0.3)' 
-              : '1px solid rgba(59, 130, 246, 0.1)'
+              ? '1px solid rgba(59, 130, 246, 0.2)' 
+              : '1px solid rgba(59, 130, 246, 0.08)'
           }}
           onMouseEnter={() => {
             console.log('Hovering feature:', index);
@@ -347,21 +351,21 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
             setHoveredFeature(null);
           }}
           >
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 10 }}>
               {feature.icon}
             </div>
             <h3 style={{ 
               fontWeight: 600, 
               color: "#1e293b", 
-              fontSize: 18,
-              marginBottom: 12
+              fontSize: 15,
+              marginBottom: 8
             }}>
               {feature.title}
             </h3>
             <p style={{ 
               color: "#475569", 
-              fontSize: 14, 
-              lineHeight: 1.6
+              fontSize: 12, 
+              lineHeight: 1.5
             }}>
               {feature.desc}
             </p>
