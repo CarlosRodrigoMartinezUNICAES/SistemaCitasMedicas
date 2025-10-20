@@ -100,12 +100,8 @@ const ScatteredIcon: React.FC<{
 
 
 type LandingProps = {
-
   onNavigate: (route: any) => void;
-
 };
-
-
 
 const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
 
@@ -113,23 +109,17 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
 
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
-
-
   useEffect(() => {
 
     setIsLoaded(true);
 
   }, []);
 
-
-
   const handleCardClick = (type: 'Paciente' | 'Doctor') => {
 
     onNavigate({ name: 'login', tipo_usuario: type });
 
   };
-
-
 
   const AnimatedCard: React.FC<{
 
@@ -328,10 +318,7 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
       </button>
 
     </div>
-
   );
-
-
 
   return (
 
@@ -358,28 +345,16 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
     }}>
 
                   {/* Scattered Medical Icons */}
-
-                  <ScatteredIcon Icon={HeartPulse} size={40} top="10%" left="5%" animationDuration="15s" delay="0s" opacity={0.25} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={Syringe} size={30} top="20%" right="10%" animationDuration="18s" delay="2s" opacity={0.2} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={Pill} size={35} bottom="15%" left="15%" animationDuration="16s" delay="4s" opacity={0.3} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={Microscope} size={45} top="5%" right="20%" animationDuration="20s" delay="6s" opacity={0.22} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={Ambulance} size={50} bottom="5%" right="5%" animationDuration="17s" delay="8s" opacity={0.28} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={Stethoscope} size={38} top="30%" left="25%" animationDuration="19s" delay="1s" opacity={0.25} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={User} size={32} bottom="25%" left="30%" animationDuration="14s" delay="3s" opacity={0.18} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={HeartPulse} size={42} top="40%" right="15%" animationDuration="17s" delay="5s" opacity={0.32} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={Syringe} size={37} bottom="10%" right="25%" animationDuration="15s" delay="7s" opacity={0.22} color="#3b82f6" />
-
-                  <ScatteredIcon Icon={Pill} size={48} top="15%" left="40%" animationDuration="21s" delay="9s" opacity={0.25} color="#3b82f6" />
-
-
+                  <ScatteredIcon Icon={HeartPulse} size={55} top="10%" left="5%" animationDuration="12s" delay="0s" opacity={0.4} color="#3b82f6" />
+                  <ScatteredIcon Icon={Syringe} size={45} top="20%" right="10%" animationDuration="15s" delay="2s" opacity={0.35} color="#3b82f6" />
+                  <ScatteredIcon Icon={Pill} size={50} bottom="15%" left="15%" animationDuration="13s" delay="4s" opacity={0.45} color="#3b82f6" />
+                  <ScatteredIcon Icon={Microscope} size={60} top="5%" right="20%" animationDuration="17s" delay="6s" opacity={0.38} color="#3b82f6" />
+                  <ScatteredIcon Icon={Ambulance} size={65} bottom="5%" right="5%" animationDuration="14s" delay="8s" opacity={0.43} color="#3b82f6" />
+                  <ScatteredIcon Icon={Stethoscope} size={53} top="30%" left="25%" animationDuration="16s" delay="1s" opacity={0.4} color="#3b82f6" />
+                  <ScatteredIcon Icon={User} size={47} bottom="25%" left="30%" animationDuration="11s" delay="3s" opacity={0.33} color="#3b82f6" />
+                  <ScatteredIcon Icon={HeartPulse} size={57} top="40%" right="15%" animationDuration="14s" delay="5s" opacity={0.47} color="#3b82f6" />
+                  <ScatteredIcon Icon={Syringe} size={52} bottom="10%" right="25%" animationDuration="12s" delay="7s" opacity={0.38} color="#3b82f6" />
+                  <ScatteredIcon Icon={Pill} size={63} top="15%" left="40%" animationDuration="18s" delay="9s" opacity={0.4} color="#3b82f6" />
 
       {/* Header */}
 
@@ -436,10 +411,7 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
           Gestión integral y moderna de citas médicas para clínicas
 
         </p>
-
       </div>
-
-
 
       {/* Main Cards Container - Horizontal Layout */}
 
@@ -496,14 +468,7 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
           iconBg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
 
         />
-
       </div>
-
-
-
-
-
-
 
       {/* Registration Section */}
 
@@ -578,51 +543,28 @@ e.currentTarget.style.transform = 'scale(1)';
 Regístrate ahora
 
 </button>
-
 </div>
-
-
 
 <style>{`
 
-
-
 @keyframes floatIcon {
-
-
 
   0% { transform: translateY(0px); }
 
+  25% { transform: translateY(-25px); }
 
+  50% { transform: translateY(-25px); }
 
-  25% { transform: translateY(-15px); }
-
-
-
-  50% { transform: translateY(-15px); }
-
-
-
-  75% { transform: translateY(15px); }
-
-
+  75% { transform: translateY(0px); }
 
   100% { transform: translateY(0px); }
 
-
-
 }
-
-
 
 `}</style>
 
     </div>
-
   );
-
 };
-
-
 
 export default LandingPage;
