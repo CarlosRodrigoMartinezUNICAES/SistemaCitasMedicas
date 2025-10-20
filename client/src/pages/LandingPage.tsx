@@ -373,12 +373,49 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
         ))}
       </div>
 
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        
+      {/* Registration Section */}
+      <div style={{
+        textAlign: 'center',
+        marginTop: 24,
+        marginBottom: 32,
+        opacity: isLoaded ? 1 : 0,
+        transform: isLoaded ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'all 0.8s ease 0.4s'
+      }}>
+        <p style={{
+          color: '#475569',
+          marginBottom: 12,
+          fontSize: 14
+        }}>
+          ¿No tienes una cuenta?
+        </p>
+        <button 
+          onClick={() => onNavigate({ name: 'register' })}
+          style={{
+            ...buttonStyle,
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            padding: '10px 24px',
+            fontSize: 14,
+            transition: 'all 0.3s ease',
+            transform: 'scale(1)'
+          }}
+          onMouseEnter={(e) => {
+e.currentTarget.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+e.currentTarget.style.transform = 'scale(1.05)';
+}}
+onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+e.currentTarget.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+e.currentTarget.style.transform = 'scale(1)';
+}}
+>
+Regístrate ahora
+</button>
+</div>
+
+<style>{`
+@keyframes float {
+0%, 100% { transform: translateY(0px) rotate(0deg); }
+
         @keyframes pulse {
           0%, 100% { transform: scale(1); opacity: 0.5; }
           50% { transform: scale(1.1); opacity: 0.8; }

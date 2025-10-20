@@ -1,4 +1,4 @@
-import React, { useState, Component, useMemo, type ReactNode } from "react";
+import React, { useState, useMemo, Component, type ReactNode } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import LandingPage from "./pages/LandingPage";
 import PacienteCitas from "./pages/PacienteCitas";
@@ -10,6 +10,7 @@ import DoctorCalendario from "./pages/DoctorCalendario";
 import DoctorCitas from "./pages/DoctorCitas";
 import DoctorPacientes from "./pages/DoctorPacientes";
 import DoctorReportes from "./pages/DoctorReportes";
+import Register from "./pages/Register";
 import "./App.css";
 import type { Route } from './types';
 
@@ -101,6 +102,16 @@ const App: React.FC = () => {
           return <div style={{background: 'rgba(255,0,0,0.1)', border: '2px solid red'}}><span>DEBUG: LandingPage</span><LandingPage onNavigate={(route) => setRoute(route)} /></div>;
         case 'login':
           return <div style={{background: 'rgba(0,0,255,0.1)', border: '2px solid blue'}}><span>DEBUG: LoginPage</span><Login tipo_usuario={route.tipo_usuario} onBack={() => setRoute({ name: 'landing' })} onSuccess={handleLoginSuccess} /></div>;
+      case 'register':
+          return (
+            <div style={{background: 'rgba(0,200,200,0.1)', border: '2px solid teal'}}>
+              <span>DEBUG: RegisterPage</span>
+              <Register 
+                onBack={() => setRoute({ name: 'landing' })} 
+                onSuccess={handleLoginSuccess} 
+              />
+            </div>
+          );
         case 'paciente-citas':
           return <div style={{background: 'rgba(0,255,0,0.1)', border: '2px solid green'}}><span>DEBUG: PacienteCitas</span><PacienteCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div>;
         case 'paciente-historial':
