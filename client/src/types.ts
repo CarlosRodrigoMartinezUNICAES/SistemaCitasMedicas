@@ -6,6 +6,8 @@ export type Route =
   | { name: 'paciente-perfil'; id_usuario: string }
   | { name: 'agendar-cita'; id_usuario: string }
   | { name: 'doctor-calendario'; id_usuario: string }
-  | { name: 'doctor-citas'; id_usuario: string };
+  | { name: 'doctor-citas'; id_usuario: string }
+  | { name: 'doctor-pacientes'; id_usuario: string }
+  | { name: 'doctor-reportes'; id_usuario: string };
 
 export type UsuarioTipo = 'Paciente' | 'Doctor';

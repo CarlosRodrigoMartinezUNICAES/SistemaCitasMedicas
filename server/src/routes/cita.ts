@@ -64,4 +64,66 @@ router.post('/', async (req, res) => {
     }
 });
 
+// UPDATE appointment status
+router.put('/:id/estado', async (req, res) => {
+    console.log('\n=== Update Appointment Status ===');
+    const id_cita = req.params.id;
+    const { estado } = req.body;
+
+    if (!estado) {
+        return res.status(400).json({ success: false, message: 'Estado es requerido' });
+    }
+
+    const validEstados = ['Pendiente', 'Confirmada', 'Cancelada', 'Atendida'];
+    if (!validEstados.includes(estado)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Estado inválido. Debe ser: Pendiente, Confirmada, Cancelada o Atendida' 
+        });
+    }
+
+    let conn: any;
+    try {
+        conn = await pool.getConnection();
+        
+        // Check if appointment exists
+        const existingCita = await conn.query('SELECT * FROM Cita WHERE id_cita = ?', [id_cita]);
+        if (existingCita.length === 0) {
+            conn.release();
+            return res.status(404).json({ success: false, message: 'Cita no encontrada' });
+        }
+
+        // Update status
+        await conn.query('UPDATE Cita SET estado = ? WHERE id_cita = ?', [estado, id_cita]);
+        
+        conn.release();
+        console.log('✅ Appointment status updated:', id_cita, '→', estado);
+
+        res.json({ success: true, message: 'Estado actualizado correctamente', estado });
+    } catch (error: any) {
+        console.error('❌ Error updating appointment status:', error);
+        if (conn) conn.release();
+        res.status(500).json({ success: false, message: 'Error del servidor' });
+    }
+});
+
+// GET all especialidades
+router.get('/especialidades/list', async (req, res) => {
+    console.log('\n=== Fetch Especialidades ===');
+    
+    let conn: any;
+    try {
+        conn = await pool.getConnection();
+        const especialidades = await conn.query('SELECT id_especialidad, nombre, descripcion FROM Especialidad ORDER BY nombre');
+        conn.release();
+        
+        console.log('✅ Especialidades found:', especialidades.length);
+        res.json({ success: true, especialidades });
+    } catch (error: any) {
+        console.error('❌ Error fetching especialidades:', error);
+        if (conn) conn.release();
+        res.status(500).json({ success: false, message: 'Error del servidor' });
+    }
+});
+
 export default router;

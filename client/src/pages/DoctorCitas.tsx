@@ -75,6 +75,7 @@ export default function DoctorCitas({ id_usuario, onBack, onNavigate }: DoctorCi
   });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id_usuario) return;
@@ -127,11 +128,33 @@ export default function DoctorCitas({ id_usuario, onBack, onNavigate }: DoctorCi
     [appointments, filtro]
   );
 
-  const verDetalles = (cita: Appointment) => {
-    // Simple details for now; replace with modal if needed
-    alert(
-      `Detalles de la cita\n\nPaciente: ${cita.paciente_nombre}\nFecha: ${cita.fecha}\nHora: ${cita.hora}\nEstado: ${cita.estado}\nTeléfono: ${cita.paciente_telefono}`
-    );
+  const handleCambiarEstado = async (id_cita: string, nuevoEstado: string) => {
+    setUpdatingStatus(id_cita);
+    try {
+      const res = await fetch(`http://localhost:3000/api/cita/${id_cita}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: nuevoEstado })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Update local state
+        setAppointments(appointments.map(c => 
+          c.id_cita === id_cita ? {...c, estado: nuevoEstado} : c
+        ));
+        // Update stats if needed
+        if (nuevoEstado === 'Pendiente' || appointments.find(c => c.id_cita === id_cita)?.estado === 'Pendiente') {
+          fetchDoctorData();
+        }
+      } else {
+        alert('Error al actualizar estado: ' + data.message);
+      }
+    } catch (err) {
+      console.error('Error updating status', err);
+      alert('Error del servidor al actualizar el estado');
+    } finally {
+      setUpdatingStatus(null);
+    }
   };
 
   return (
@@ -239,11 +262,11 @@ export default function DoctorCitas({ id_usuario, onBack, onNavigate }: DoctorCi
               </div>
             ) : (
               citasFiltradas.map((cita) => (
-              <div key={cita.id_cita} style={{ ...cardStyle, border: "2px dotted #60a5fa", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
+              <div key={cita.id_cita} style={{ ...cardStyle, border: "2px dotted #60a5fa", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+                <div style={{ flex: 1, minWidth: 250 }}>
                   <p style={{
                     fontSize: 12,
-                    color: cita.estado === 'Pendiente' ? "#dc2626" : cita.estado === 'Confirmada' ? "#16a34a" : "#2563eb",
+                    color: cita.estado === 'Pendiente' ? "#dc2626" : cita.estado === 'Confirmada' ? "#16a34a" : cita.estado === 'Cancelada' ? "#94a3b8" : "#2563eb",
                     fontWeight: 600,
                     marginBottom: 8,
                     marginTop: 0
@@ -258,14 +281,34 @@ export default function DoctorCitas({ id_usuario, onBack, onNavigate }: DoctorCi
                     <UserIcon size={16} />
                     <p style={{ margin: 0 }}>{cita.paciente_nombre}</p>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155", marginBottom: 4 }}>
                     <Stethoscope size={16} />
                     <p style={{ margin: 0 }}>{doctor?.especialidad || 'N/A'}</p>
                   </div>
-                  <p style={{ color: "#64748b", margin: 0, fontSize: 12, marginTop: 4 }}>{cita.fecha}</p>
+                  <p style={{ color: "#64748b", margin: 0, fontSize: 12 }}>{cita.fecha} · Tel: {cita.paciente_telefono}</p>
                 </div>
-                <div>
-                  <Button variant="outline" onClick={() => verDetalles(cita)}>Ver Detalles</Button>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 140 }}>
+                  <select
+                    value={cita.estado}
+                    onChange={(e) => handleCambiarEstado(cita.id_cita, e.target.value)}
+                    disabled={updatingStatus === cita.id_cita}
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: 6,
+                      border: "1px solid #e5e7eb",
+                      background: "#fff",
+                      fontSize: 13,
+                      cursor: updatingStatus === cita.id_cita ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Confirmada">Confirmada</option>
+                    <option value="Atendida">Atendida</option>
+                    <option value="Cancelada">Cancelada</option>
+                  </select>
+                  {updatingStatus === cita.id_cita && (
+                    <p style={{ fontSize: 11, color: "#64748b", margin: 0, textAlign: "center" }}>Actualizando...</p>
+                  )}
                 </div>
               </div>
               ))

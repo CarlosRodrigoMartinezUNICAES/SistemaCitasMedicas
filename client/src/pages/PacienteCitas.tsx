@@ -4,13 +4,13 @@ import LoadingSpinner from "../components/LoadingSpinner";
 
 const cardStyle = {
   background: "#fff",
-  borderRadius: 16,
-  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-  padding: 20,
-  minWidth: 200,
+  borderRadius: 12,
+  boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
+  padding: 16,
+  minWidth: 240,
   flex: 1,
-  textAlign: "center" as const,
-  margin: 4,
+  textAlign: "left" as const,
+  margin: '8px 0',
 };
 const buttonStyle = {
   background: "#222",
@@ -46,6 +46,7 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
   const [paciente, setPaciente] = useState<any>(null);
   const [citas, setCitas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [cancelling, setCancelling] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id_usuario) return;
@@ -74,6 +75,32 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
     };
     fetchPaciente();
   }, [id_usuario]);
+
+  const handleCancelarCita = async (id_cita: string) => {
+    if (!confirm('¿Está seguro que desea cancelar esta cita?')) return;
+    
+    setCancelling(id_cita);
+    try {
+      const res = await fetch(`http://localhost:3000/api/cita/${id_cita}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: 'Cancelada' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Update local state
+        setCitas(citas.map(c => c.id_cita === id_cita ? {...c, estado: 'Cancelada'} : c));
+        alert('Cita cancelada exitosamente');
+      } else {
+        alert('Error al cancelar la cita: ' + data.message);
+      }
+    } catch (err) {
+      console.error('Error cancelling appointment', err);
+      alert('Error del servidor al cancelar la cita');
+    } finally {
+      setCancelling(null);
+    }
+  };
 
   return (
     <div style={{ padding: 24, background: "#f8fafc", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -130,24 +157,79 @@ export default function PacienteCitas({ id_usuario, onBack, onNavigate }: Pacien
             <div style={{ color: "#64748b", fontSize: 16 }}>No hay citas agendadas</div>
           ) : (
             citas.map((cita) => (
-              <div key={cita.id_cita} style={{ ...cardStyle, border: "2px dotted #60a5fa", textAlign: "left" }}>
-                <p style={{ fontSize: 12, color: cita.estado === 'Pendiente' ? "#dc2626" : cita.estado === 'Confirmada' ? "#16a34a" : "#2563eb", fontWeight: 600, marginBottom: 4 }}>{cita.estado}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155" }}>
-                  <Calendar size={16} />
-                  <p>{formatFecha(cita.fecha)}</p>
+              <div key={cita.id_cita} style={{ 
+                ...cardStyle, 
+                borderLeft: `4px solid ${
+                  cita.estado === 'Pendiente' ? "#f59e0b" : 
+                  cita.estado === 'Confirmada' ? "#10b981" : 
+                  cita.estado === 'Cancelada' ? "#94a3b8" : "#3b82f6"
+                }`,
+                position: 'relative',
+                paddingRight: '80px'
+              }}>
+                <div style={{ 
+                  position: 'absolute', 
+                  top: 16, 
+                  right: 16,
+                  padding: '2px 8px',
+                  borderRadius: 12,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: cita.estado === 'Pendiente' ? "#b45309" : cita.estado === 'Confirmada' ? "#047857" : cita.estado === 'Cancelada' ? "#64748b" : "#1d4ed8",
+                  backgroundColor: cita.estado === 'Pendiente' ? "#fef3c7" : cita.estado === 'Confirmada' ? "#d1fae5" : cita.estado === 'Cancelada' ? "#f1f5f9" : "#dbeafe"
+                }}>
+                  {cita.estado}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155", marginTop: 4 }}>
-                  <Clock size={16} />
-                  <p>{cita.hora?.slice(0,5)}</p>
+                
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <Calendar size={16} color="#4b5563" />
+                    <div>
+                      <p style={{ fontSize: 14, color: "#4b5563", margin: 0 }}>{formatFecha(cita.fecha)}</p>
+                      <p style={{ fontSize: 14, color: "#6b7280", margin: '2px 0 0 0' }}>{cita.hora?.slice(0,5)}</p>
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, margin: '12px 0' }}>
+                    <User size={16} color="#4b5563" />
+                    <p style={{ fontSize: 14, color: "#1f2937", margin: 0, fontWeight: 500 }}>{cita.doctor_nombre}</p>
+                  </div>
+                  
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Stethoscope size={16} color="#4b5563" />
+                    <p style={{ fontSize: 14, color: "#4b5563", margin: 0 }}>{cita.especialidad}</p>
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155", marginTop: 4 }}>
-                  <User size={16} />
-                  <p>{cita.doctor_nombre}</p>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#334155", marginTop: 4 }}>
-                  <Stethoscope size={16} />
-                  <p>{cita.especialidad}</p>
-                </div>
+                
+                {(cita.estado === 'Pendiente' || cita.estado === 'Confirmada') && (
+                  <button
+                    onClick={() => handleCancelarCita(cita.id_cita)}
+                    disabled={cancelling === cita.id_cita}
+                    style={{
+                      position: 'absolute',
+                      bottom: 16,
+                      right: 16,
+                      padding: "4px 12px",
+                      fontSize: 12,
+                      borderRadius: 6,
+                      border: "1px solid #dc2626",
+                      background: cancelling === cita.id_cita ? "#f5f5f5" : "#fff",
+                      color: "#dc2626",
+                      cursor: cancelling === cita.id_cita ? "not-allowed" : "pointer",
+                      opacity: cancelling === cita.id_cita ? 0.7 : 1,
+                      whiteSpace: "nowrap",
+                      transition: 'all 0.2s',
+                      ...(cancelling !== cita.id_cita && {
+                        ':hover': {
+                          background: '#fef2f2',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                        }
+                      })
+                    }}
+                  >
+                    {cancelling === cita.id_cita ? 'Cancelando...' : 'Cancelar'}
+                  </button>
+                )}
               </div>
             ))
           )}

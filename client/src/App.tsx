@@ -1,4 +1,4 @@
-import React, { useState, Component, ReactNode, useRef, useMemo } from "react";
+import React, { useState, Component, useMemo, type ReactNode } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import LandingPage from "./pages/LandingPage";
 import PacienteCitas from "./pages/PacienteCitas";
@@ -8,6 +8,8 @@ import AgendarCita from "./pages/AgendarCita";
 import Login from "./pages/Login";
 import DoctorCalendario from "./pages/DoctorCalendario";
 import DoctorCitas from "./pages/DoctorCitas";
+import DoctorPacientes from "./pages/DoctorPacientes";
+import DoctorReportes from "./pages/DoctorReportes";
 import "./App.css";
 import type { Route } from './types';
 
@@ -54,6 +56,10 @@ const App: React.FC = () => {
         return `${route.name}-${route.id_usuario}`;
       case 'doctor-citas':
         return `${route.name}-${route.id_usuario}`;
+      case 'doctor-pacientes':
+        return `${route.name}-${route.id_usuario}`;
+      case 'doctor-reportes':
+        return `${route.name}-${route.id_usuario}`;
       default:
         return 'unknown';
     }
@@ -83,6 +89,8 @@ const App: React.FC = () => {
   const handleDoctorNavigate = (userId: string, page: 'calendario' | 'citas' | 'pacientes' | 'reportes') => {
     if (page === 'calendario') setRoute({ name: 'doctor-calendario', id_usuario: userId });
     if (page === 'citas') setRoute({ name: 'doctor-citas', id_usuario: userId });
+    if (page === 'pacientes') setRoute({ name: 'doctor-pacientes', id_usuario: userId });
+    if (page === 'reportes') setRoute({ name: 'doctor-reportes', id_usuario: userId });
   };
 
   const renderPage = () => {
@@ -105,6 +113,10 @@ const App: React.FC = () => {
           return <div style={{background: 'rgba(128,0,128,0.1)', border: '2px solid magenta'}}><span>DEBUG: DoctorCalendario</span><DoctorCalendario id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div>;
         case 'doctor-citas':
           return <div style={{background: 'rgba(128,128,0,0.1)', border: '2px solid olive'}}><span>DEBUG: DoctorCitas</span><DoctorCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div>;
+        case 'doctor-pacientes':
+          return <div style={{background: 'rgba(0,128,128,0.1)', border: '2px solid teal'}}><span>DEBUG: DoctorPacientes</span><DoctorPacientes id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div>;
+        case 'doctor-reportes':
+          return <div style={{background: 'rgba(255,192,203,0.1)', border: '2px solid pink'}}><span>DEBUG: DoctorReportes</span><DoctorReportes id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div>;
         default:
           return <div style={{background: 'rgba(0,0,0,0.1)', border: '2px solid black', color: 'black'}}><span>DEBUG: No page rendered for route: {JSON.stringify(route)}</span></div>;
       }

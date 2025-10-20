@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 type Props = {
@@ -7,14 +7,39 @@ type Props = {
   onCreated?: (citaId: string) => void;
 };
 
+type Especialidad = {
+  id_especialidad: string;
+  nombre: string;
+  descripcion: string;
+};
+
 export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
   const [especialidad, setEspecialidad] = useState('');
-  const [email, setEmail] = useState('');
-  const [info, setInfo] = useState('');
+  const [especialidades, setEspecialidades] = useState<Especialidad[]>([]);
   const [hora, setHora] = useState('09:00');
   const [fecha, setFecha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingEspecialidades, setLoadingEspecialidades] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchEspecialidades();
+  }, []);
+
+  const fetchEspecialidades = async () => {
+    setLoadingEspecialidades(true);
+    try {
+      const res = await fetch('http://localhost:3000/api/cita/especialidades/list');
+      const data = await res.json();
+      if (data.success) {
+        setEspecialidades(data.especialidades);
+      }
+    } catch (err) {
+      console.error('Error fetching especialidades', err);
+    } finally {
+      setLoadingEspecialidades(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!id_usuario) return setMessage('Usuario no identificado');
@@ -54,20 +79,23 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
 
         <div style={{ display: 'grid', gap: 12 }}>
           <div>
-            <p style={{ fontSize: 12, color: '#334155', marginBottom: 6 }}>Información de la Cita</p>
-            <textarea value={info} onChange={(e) => setInfo(e.target.value)} placeholder="Breve descripción" style={{ width: '100%', minHeight: 80, padding: 10, borderRadius: 8, border: '1px solid #e5e7eb' }} />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div>
-              <p style={{ fontSize: 12, color: '#334155', marginBottom: 6 }}>Especialidad Médica</p>
-              <input value={especialidad} onChange={e => setEspecialidad(e.target.value)} placeholder="Ej. Cardiología" style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #e5e7eb' }} />
-            </div>
-
-            <div>
-              <p style={{ fontSize: 12, color: '#334155', marginBottom: 6 }}>Email</p>
-              <input value={email} onChange={e => setEmail(e.target.value)} placeholder="correo@ejemplo.com" style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #e5e7eb' }} />
-            </div>
+            <p style={{ fontSize: 12, color: '#334155', marginBottom: 6 }}>Especialidad Médica *</p>
+            <select 
+              value={especialidad} 
+              onChange={e => setEspecialidad(e.target.value)} 
+              disabled={loadingEspecialidades}
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}
+            >
+              <option value="">Seleccione una especialidad</option>
+              {especialidades.map(esp => (
+                <option key={esp.id_especialidad} value={esp.nombre}>
+                  {esp.nombre}
+                </option>
+              ))}
+            </select>
+            {loadingEspecialidades && (
+              <p style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Cargando especialidades...</p>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
