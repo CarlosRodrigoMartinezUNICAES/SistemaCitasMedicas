@@ -13,8 +13,6 @@ html, body, #root {
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
-   border: 2px dashed red;
-   background: rgba(255,0,0,0.05);
 }
 /* Smooth page transitions */
 .page-transition-enter {

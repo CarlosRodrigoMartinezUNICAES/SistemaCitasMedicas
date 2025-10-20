@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import { User, Stethoscope, CalendarDays, Users, BarChart3 } from "lucide-react";
+import { User, Stethoscope } from "lucide-react";
 
 const cardStyle: React.CSSProperties = {
   width: '100%',
@@ -45,7 +45,6 @@ type LandingProps = {
 const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -60,31 +59,28 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
     icon: React.ReactNode, 
     title: string, 
     description: string, 
-    features: string[],
     gradient: string,
     iconBg: string
-  }> = ({ type, icon, title, description, features, gradient, iconBg }) => (
+  }> = ({ type, icon, title, description, gradient, iconBg }) => (
     <div 
       style={{
         ...cardStyle,
         opacity: isLoaded ? 1 : 0,
         transform: isLoaded 
-          ? (hoveredCard === type ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)')
+          ? (hoveredCard === type ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)')
           : 'translateY(30px) scale(0.95)',
         boxShadow: hoveredCard === type 
-          ? '0 10px 25px rgba(59, 130, 246, 0.18)' 
+          ? '0 8px 20px rgba(59, 130, 246, 0.15)' 
           : '0 4px 16px rgba(59, 130, 246, 0.08)',
         border: hoveredCard === type 
-          ? '2px solid rgba(59, 130, 246, 0.3)' 
+          ? '1px solid rgba(59, 130, 246, 0.2)' 
           : '1px solid rgba(59, 130, 246, 0.1)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
       onMouseEnter={() => {
-        console.log('Hovering card:', type);
         setHoveredCard(type);
       }}
       onMouseLeave={() => {
-        console.log('Leaving card:', type);
         setHoveredCard(null);
       }}
     >
@@ -135,38 +131,7 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
         {description}
       </p>
       
-      <ul style={{ 
-        color: "#475569", 
-        fontSize: 12, 
-        marginBottom: 18, 
-        textAlign: "left", 
-        listStyle: "none",
-        padding: 0
-      }}>
-        {features.map((feature, index) => (
-          <li key={index} style={{
-            marginBottom: 6,
-            paddingLeft: 16,
-            position: 'relative',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: hoveredCard === type ? 'translateX(5px)' : 'translateX(0)',
-            transitionDelay: hoveredCard === type ? `${index * 0.05}s` : '0s'
-          }}>
-            <span style={{
-              position: 'absolute',
-              left: 0,
-              top: '50%',
-              width: 5,
-              height: 5,
-              borderRadius: '50%',
-              background: gradient,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform: hoveredCard === type ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)'
-            }} />
-            {feature}
-          </li>
-        ))}
-      </ul>
+
       
       <button 
         style={{
@@ -180,11 +145,9 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
         onClick={() => handleCardClick(type)}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)';
-          e.currentTarget.style.transform = 'scale(1.05)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
-          e.currentTarget.style.transform = hoveredCard === type ? 'scale(1.05)' : 'scale(1)';
         }}
       >
         Acceder como {type}
@@ -272,7 +235,7 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
       {/* Main Cards Container - Horizontal Layout */}
       <div style={{ 
         display: "flex", 
-        gap: 16, 
+        gap: 8, 
         justifyContent: "center", 
         flexWrap: "wrap",
         maxWidth: '100%',
@@ -285,12 +248,6 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
           icon={<User size={36} color="#ffffff" />}
           title="Panel de Paciente"
           description="Gestiona tus citas médicas de forma sencilla y eficiente"
-          features={[
-            "Agendar nueva cita",
-            "Ver historial de citas", 
-            "Consultar especialidades",
-            "Gestionar información personal"
-          ]}
           gradient="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
           iconBg="linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)"
         />
@@ -300,78 +257,12 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
           icon={<Stethoscope size={36} color="#ffffff" />}
           title="Panel Médico"
           description="Administra citas, pacientes y consultas médicas"
-          features={[
-            "Calendario de citas",
-            "Gestión de pacientes",
-            "Reportes y estadísticas", 
-            "Historial de consultas"
-          ]}
           gradient="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
           iconBg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
         />
       </div>
 
-      {/* Features Section */}
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
-        gap: 16, 
-        maxWidth: '90%', 
-        width: '100%',
-        textAlign: "center",
-        opacity: isLoaded ? 1 : 0,
-        transform: isLoaded ? 'translateY(0)' : 'translateY(30px)',
-        transition: 'all 0.8s ease 0.3s'
-      }}>
-        {[
-          { icon: <CalendarDays size={24} color="#3b82f6" />, title: "Gestión de Citas", desc: "Sistema completo para agendar y administrar citas médicas" },
-          { icon: <Users size={24} color="#22c55e" />, title: "Control de Pacientes", desc: "Registro y seguimiento del historial médico de pacientes" },
-          { icon: <BarChart3 size={24} color="#3b82f6" />, title: "Reportes y Análisis", desc: "Estadísticas y reportes para mejorar la gestión clínica" }
-        ].map((feature, index) => (
-          <div key={index} style={{
-            background: 'rgba(255,255,255,0.7)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: 16,
-            padding: 14,
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: hoveredFeature === index ? 'translateY(-5px)' : 'translateY(0)',
-            boxShadow: hoveredFeature === index 
-              ? '0 4px 16px rgba(59, 130, 246, 0.18)' 
-              : '0 2px 8px rgba(59, 130, 246, 0.08)',
-            border: hoveredFeature === index 
-              ? '1px solid rgba(59, 130, 246, 0.2)' 
-              : '1px solid rgba(59, 130, 246, 0.08)'
-          }}
-          onMouseEnter={() => {
-            console.log('Hovering feature:', index);
-            setHoveredFeature(index);
-          }}
-          onMouseLeave={() => {
-            console.log('Leaving feature:', index);
-            setHoveredFeature(null);
-          }}
-          >
-            <div style={{ marginBottom: 10 }}>
-              {feature.icon}
-            </div>
-            <h3 style={{ 
-              fontWeight: 600, 
-              color: "#1e293b", 
-              fontSize: 15,
-              marginBottom: 8
-            }}>
-              {feature.title}
-            </h3>
-            <p style={{ 
-              color: "#475569", 
-              fontSize: 12, 
-              lineHeight: 1.5
-            }}>
-              {feature.desc}
-            </p>
-          </div>
-        ))}
-      </div>
+
 
       {/* Registration Section */}
       <div style={{

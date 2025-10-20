@@ -12,7 +12,8 @@ import DoctorPacientes from "./pages/DoctorPacientes";
 import DoctorReportes from "./pages/DoctorReportes";
 import Register from "./pages/Register";
 import "./App.css";
-import type { Route } from './types';
+import { useDebug } from "./contexts/DebugContext";
+import DebugToggle from "./components/DebugToggle";
 
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean, error: any}> {
   constructor(props: any) {
@@ -38,6 +39,7 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean,
 
 const App: React.FC = () => {
   const [route, setRoute] = useState<Route>({ name: 'landing' });
+  const { isDebugMode } = useDebug();
 
   const getRouteKey = (route: Route): string => {
     switch (route.name) {
@@ -99,11 +101,11 @@ const App: React.FC = () => {
       console.log('renderPage route:', route);
       switch (route.name) {
         case 'landing':
-          return <div style={{background: 'rgba(255,0,0,0.1)', border: '2px solid red'}}><span>DEBUG: LandingPage</span><LandingPage onNavigate={(route) => setRoute(route)} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(255,0,0,0.1)', border: '2px solid red'}}><span>DEBUG: LandingPage</span><LandingPage onNavigate={(route) => setRoute(route)} /></div> : <LandingPage onNavigate={(route) => setRoute(route)} />;
         case 'login':
-          return <div style={{background: 'rgba(0,0,255,0.1)', border: '2px solid blue'}}><span>DEBUG: LoginPage</span><Login tipo_usuario={route.tipo_usuario} onBack={() => setRoute({ name: 'landing' })} onSuccess={handleLoginSuccess} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(0,0,255,0.1)', border: '2px solid blue'}}><span>DEBUG: LoginPage</span><Login tipo_usuario={route.tipo_usuario} onBack={() => setRoute({ name: 'landing' })} onSuccess={handleLoginSuccess} /></div> : <Login tipo_usuario={route.tipo_usuario} onBack={() => setRoute({ name: 'landing' })} onSuccess={handleLoginSuccess} />;
       case 'register':
-          return (
+          return isDebugMode ? (
             <div style={{background: 'rgba(0,200,200,0.1)', border: '2px solid teal'}}>
               <span>DEBUG: RegisterPage</span>
               <Register 
@@ -111,23 +113,23 @@ const App: React.FC = () => {
                 onSuccess={handleLoginSuccess} 
               />
             </div>
-          );
+          ) : <Register onBack={() => setRoute({ name: 'landing' })} onSuccess={handleLoginSuccess} />;
         case 'paciente-citas':
-          return <div style={{background: 'rgba(0,255,0,0.1)', border: '2px solid green'}}><span>DEBUG: PacienteCitas</span><PacienteCitas id_usuario={route.id_usuario} nombre_completo={route.nombre_completo} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(0,255,0,0.1)', border: '2px solid green'}}><span>DEBUG: PacienteCitas</span><PacienteCitas id_usuario={route.id_usuario} nombre_completo={route.nombre_completo} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div> : <PacienteCitas id_usuario={route.id_usuario} nombre_completo={route.nombre_completo} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
         case 'paciente-historial':
-          return <div style={{background: 'rgba(255,255,0,0.1)', border: '2px solid orange'}}><span>DEBUG: PacienteHistorialMedico</span><PacienteHistorialMedico id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(255,255,0,0.1)', border: '2px solid orange'}}><span>DEBUG: PacienteHistorialMedico</span><PacienteHistorialMedico id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div> : <PacienteHistorialMedico id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
         case 'paciente-perfil':
-          return <div style={{background: 'rgba(255,0,255,0.1)', border: '2px solid purple'}}><span>DEBUG: PacientePerfil</span><PacientePerfil id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(255,0,255,0.1)', border: '2px solid purple'}}><span>DEBUG: PacientePerfil</span><PacientePerfil id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} /></div> : <PacientePerfil id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handlePacienteNavigate(route.id_usuario, page)} />;
         case 'agendar-cita':
-          return <div style={{background: 'rgba(0,255,255,0.1)', border: '2px solid cyan'}}><span>DEBUG: AgendarCita</span><AgendarCita id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario })} onCreated={(id) => { console.log('Cita creada', id); setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario }); }} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(0,255,255,0.1)', border: '2px solid cyan'}}><span>DEBUG: AgendarCita</span><AgendarCita id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario })} onCreated={(id) => { console.log('Cita creada', id); setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario }); }} /></div> : <AgendarCita id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario })} onCreated={(id) => { console.log('Cita creada', id); setRoute({ name: 'paciente-citas', id_usuario: route.id_usuario }); }} />;
         case 'doctor-calendario':
-          return <div style={{background: 'rgba(128,0,128,0.1)', border: '2px solid magenta'}}><span>DEBUG: DoctorCalendario</span><DoctorCalendario id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(128,0,128,0.1)', border: '2px solid magenta'}}><span>DEBUG: DoctorCalendario</span><DoctorCalendario id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div> : <DoctorCalendario id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
         case 'doctor-citas':
-          return <div style={{background: 'rgba(128,128,0,0.1)', border: '2px solid olive'}}><span>DEBUG: DoctorCitas</span><DoctorCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(128,128,0,0.1)', border: '2px solid olive'}}><span>DEBUG: DoctorCitas</span><DoctorCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div> : <DoctorCitas id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
         case 'doctor-pacientes':
-          return <div style={{background: 'rgba(0,128,128,0.1)', border: '2px solid teal'}}><span>DEBUG: DoctorPacientes</span><DoctorPacientes id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(0,128,128,0.1)', border: '2px solid teal'}}><span>DEBUG: DoctorPacientes</span><DoctorPacientes id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div> : <DoctorPacientes id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
         case 'doctor-reportes':
-          return <div style={{background: 'rgba(255,192,203,0.1)', border: '2px solid pink'}}><span>DEBUG: DoctorReportes</span><DoctorReportes id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div>;
+          return isDebugMode ? <div style={{background: 'rgba(255,192,203,0.1)', border: '2px solid pink'}}><span>DEBUG: DoctorReportes</span><DoctorReportes id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} /></div> : <DoctorReportes id_usuario={route.id_usuario} onBack={() => setRoute({ name: 'landing' })} onNavigate={(page) => handleDoctorNavigate(route.id_usuario, page)} />;
         default:
           return <div style={{background: 'rgba(0,0,0,0.1)', border: '2px solid black', color: 'black'}}><span>DEBUG: No page rendered for route: {JSON.stringify(route)}</span></div>;
       }
@@ -149,6 +151,7 @@ const App: React.FC = () => {
   const nodeRef = nodeRefs[routeKey];
   return (
     <ErrorBoundary>
+      <DebugToggle />
       <div className="transition-container">
         <TransitionGroup component={null}>
           <CSSTransition

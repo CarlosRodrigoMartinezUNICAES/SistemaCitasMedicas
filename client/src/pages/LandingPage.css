@@ -41,32 +41,7 @@
   margin: 0 auto;
 }
 
-.card {
-  background: var(--card-bg);
-  border-radius: 1rem;
-  padding: 2rem;
-  width: 300px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: var(--shadow-md);
-}
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-}
-
-.card h2 {
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-}
-
-.card p {
-  color: var(--text-secondary);
-  margin: 0;
-}
 
 @media (max-width: 768px) {
   .title {
