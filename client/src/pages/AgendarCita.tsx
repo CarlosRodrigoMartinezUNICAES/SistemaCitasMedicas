@@ -162,6 +162,30 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
       return;
     }
 
+    // Check if the selected date is in the past
+    const selectedDate = new Date(fecha);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time part to compare only dates
+    selectedDate.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+      setMessage('No se pueden agendar citas para fechas pasadas');
+      return;
+    }
+
+    // Check if the selected time is in the past (for today's date)
+    if (selectedDate.getTime() === today.getTime()) {
+      const now = new Date();
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      const [slotHours, slotMinutes] = hora.split(':').map(Number);
+      
+      if ((currentHours > slotHours) || (currentHours === slotHours && currentMinutes > slotMinutes)) {
+        setMessage('No se pueden agendar citas para horarios pasados');
+        return;
+      }
+    }
+
     // Double check that the selected time is not in a busy slot (UI should prevent this, but as an extra check)
     if (isTimeSlotBlocked(hora)) {
       setMessage('La hora seleccionada ya está ocupada. Por favor, seleccione otra hora.');
@@ -274,42 +298,76 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
               <div>
                 <p style={{ fontSize: 12, color: '#334155', marginBottom: 6 }}>Hora <span style={{fontSize: 10, color: '#64748b'}}>(Seleccione un horario)</span></p>
                 <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, padding: 8 }}>
-                  {loadingAvailability ? (
-                    <p style={{ textAlign: 'center', padding: '10px', color: '#64748b' }}>Cargando disponibilidad...</p>
-                  ) : busySlots.length === 0 && timeSlots.length > 0 ? (
-                    <p style={{ textAlign: 'center', padding: '10px', color: '#16a34a', fontSize: 12 }}>Todo el día está disponible</p>
-                  ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                      {timeSlots.map((timeSlot) => {
-                        const isBlocked = isTimeSlotBlocked(timeSlot);
-                        const isSelected = hora === timeSlot;
-                        return (
-                          <button
-                            key={timeSlot}
-                            onClick={() => !isBlocked && setHora(timeSlot)}
-                            disabled={isBlocked}
-                            style={{
-                              padding: '6px 8px',
-                              borderRadius: 6,
-                              border: '1px solid #e2e8f0',
-                              background: isBlocked 
-                                ? '#fee2e2' // Red for busy
-                                : isSelected
-                                ? '#dbeafe' // Blue for selected
-                                : '#f1f5f9', // Gray for available
-                              color: isBlocked ? '#991b1b' : isSelected ? '#1e40af' : '#475569',
-                              cursor: isBlocked ? 'not-allowed' : 'pointer',
-                              fontSize: 11,
-                              textAlign: 'center',
-                              opacity: isBlocked ? 0.7 : 1
-                            }}
-                          >
-                            {timeSlot}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                  {(() => {
+                    // Check if the selected date is in the past
+                    const selectedDate = new Date(fecha);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Reset time part to compare only dates
+                    selectedDate.setHours(0, 0, 0, 0);
+                    
+                    if (selectedDate < today) {
+                      return (
+                        <p style={{ textAlign: 'center', padding: '10px', color: '#dc2626', fontSize: 12 }}>
+                          No se pueden agendar citas para fechas pasadas
+                        </p>
+                      );
+                    }
+                    
+                    return loadingAvailability ? (
+                      <p style={{ textAlign: 'center', padding: '10px', color: '#64748b' }}>Cargando disponibilidad...</p>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                        {timeSlots.map((timeSlot) => {
+                          // Check if this time has already passed if the selected date is today
+                          const isToday = selectedDate.getTime() === today.getTime();
+                          let isTimePassed = false;
+                          
+                          if (isToday) {
+                            const now = new Date();
+                            const currentHours = now.getHours();
+                            const currentMinutes = now.getMinutes();
+                            const [slotHours, slotMinutes] = timeSlot.split(':').map(Number);
+                            
+                            // Check if the slot time has already passed (with some buffer time)
+                            isTimePassed = (currentHours > slotHours) || 
+                                          (currentHours === slotHours && currentMinutes > slotMinutes);
+                          }
+                          
+                          const isBlocked = isTimeSlotBlocked(timeSlot) || isTimePassed;
+                          const isSelected = hora === timeSlot;
+                          
+                          return (
+                            <button
+                              key={timeSlot}
+                              onClick={() => !isBlocked && setHora(timeSlot)}
+                              disabled={isBlocked}
+                              style={{
+                                padding: '6px 8px',
+                                borderRadius: 6,
+                                border: '1px solid #e2e8f0',
+                                background: isTimePassed
+                                  ? '#fef2f2' // Light red for past times on today
+                                  : isBlocked 
+                                    ? '#fee2e2' // Red for busy
+                                    : isSelected
+                                      ? '#dbeafe' // Blue for selected
+                                      : '#f1f5f9', // Gray for available
+                                color: isTimePassed 
+                                  ? '#dc2626' // Dark red for past times on today
+                                  : isBlocked ? '#991b1b' : isSelected ? '#1e40af' : '#475569',
+                                cursor: isBlocked ? 'not-allowed' : 'pointer',
+                                fontSize: 11,
+                                textAlign: 'center',
+                                opacity: isBlocked ? 0.7 : 1
+                              }}
+                            >
+                              {timeSlot}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             )}
