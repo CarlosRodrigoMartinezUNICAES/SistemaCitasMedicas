@@ -225,4 +225,55 @@ router.get('/check-conflict', async (req, res) => {
     }
 });
 
+// Get available time slots for a doctor on a specific date
+router.get('/disponibilidad/:id_doctor/:fecha', async (req, res) => {
+    console.log('\n=== Fetch Doctor Availability ===');
+    console.log('Params:', req.params);
+    
+    const { id_doctor, fecha } = req.params;
+    
+    if (!id_doctor || !fecha) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'id_doctor y fecha son requeridos' 
+        });
+    }
+    
+    let conn: any;
+    try {
+        conn = await pool.getConnection();
+        
+        // Get all reserved appointments for this doctor on the specific date
+        // Calculate the busy time slots (appointment time + 1 hour) directly in SQL
+        const reservedSlots: any = await conn.query(
+            `SELECT hora AS start_time, ADDTIME(hora, '01:00:00') AS end_time FROM Cita 
+             WHERE id_doctor = ? AND fecha = ?
+             ORDER BY hora`,
+            [id_doctor, fecha]
+        );
+        
+        conn.release();
+        
+        // Format the time ranges
+        const busySlots = reservedSlots.map((slot: any) => {
+            return {
+                start: slot.start_time,
+                end: slot.end_time
+            };
+        });
+        
+        console.log(`Reserved slots for doctor ${id_doctor} on ${fecha}:`, busySlots);
+        
+        res.json({ 
+            success: true, 
+            busySlots,
+            message: `Horarios ocupados para el doctor ${id_doctor} en la fecha ${fecha}`
+        });
+    } catch (error: any) {
+        console.error('❌ Error fetching doctor availability:', error);
+        if (conn) conn.release();
+        res.status(500).json({ success: false, message: 'Error del servidor al obtener disponibilidad' });
+    }
+});
+
 export default router;
