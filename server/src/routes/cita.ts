@@ -9,7 +9,7 @@ router.post('/', async (req, res) => {
     console.log('Time:', new Date().toISOString());
     console.log('Body:', req.body);
 
-    const { id_paciente, fecha, hora, especialidad } = req.body;
+    const { id_paciente, fecha, hora, especialidad, id_doctor } = req.body;
 
     if (!id_paciente || !fecha || !hora || !especialidad) {
         console.log('❌ Validation failed: missing fields');
@@ -21,22 +21,42 @@ router.post('/', async (req, res) => {
         conn = await pool.getConnection();
         console.log('✓ DB connection acquired');
 
-        // Find a doctor for the requested especialidad
-        const doctorRows: any = await conn.query(
-            `SELECT d.id_doctor FROM Doctor d
-             JOIN Especialidad e ON d.id_especialidad = e.id_especialidad
-             WHERE e.nombre = ? LIMIT 1`,
-            [especialidad]
-        );
+        let selected_doctor_id = id_doctor;
 
-        if (!doctorRows || doctorRows.length === 0) {
-            console.log('❌ No doctor found for especialidad', especialidad);
-            conn.release();
-            return res.status(400).json({ success: false, message: 'No se encontró un doctor para la especialidad indicada' });
+        // If no doctor was specifically selected, find one for the requested especialidad
+        if (!selected_doctor_id) {
+            const doctorRows: any = await conn.query(
+                `SELECT d.id_doctor FROM Doctor d
+                 JOIN Especialidad e ON d.id_especialidad = e.id_especialidad
+                 WHERE e.nombre = ? LIMIT 1`,
+                [especialidad]
+            );
+
+            if (!doctorRows || doctorRows.length === 0) {
+                console.log('❌ No doctor found for especialidad', especialidad);
+                conn.release();
+                return res.status(400).json({ success: false, message: 'No se encontró un doctor para la especialidad indicada' });
+            }
+
+            selected_doctor_id = doctorRows[0].id_doctor;
+            console.log('Auto-selected doctor:', selected_doctor_id);
+        } else {
+            // Validate that the selected doctor exists and has the correct specialty
+            const doctorValidation: any = await conn.query(
+                `SELECT d.id_doctor FROM Doctor d
+                 JOIN Especialidad e ON d.id_especialidad = e.id_especialidad
+                 WHERE d.id_doctor = ? AND e.nombre = ?`,
+                [selected_doctor_id, especialidad]
+            );
+
+            if (!doctorValidation || doctorValidation.length === 0) {
+                console.log('❌ Selected doctor does not match specialty', { id_doctor: selected_doctor_id, especialidad });
+                conn.release();
+                return res.status(400).json({ success: false, message: 'El doctor seleccionado no se especializa en la especialidad indicada' });
+            }
+
+            console.log('Validated doctor:', selected_doctor_id);
         }
-
-        const id_doctor = doctorRows[0].id_doctor;
-        console.log('Found doctor:', id_doctor);
 
         // Generate next id_cita using numeric part
         const maxRes: any = await conn.query("SELECT MAX(CAST(SUBSTRING(id_cita,2) AS UNSIGNED)) as maxId FROM Cita");
@@ -46,17 +66,17 @@ router.post('/', async (req, res) => {
 
         const estado = 'Pendiente';
 
-        console.log('Inserting cita', { id_cita, fecha, hora, estado, id_paciente, id_doctor });
+        console.log('Inserting cita', { id_cita, fecha, hora, estado, id_paciente, id_doctor: selected_doctor_id });
 
         await conn.query(
             'INSERT INTO Cita (id_cita, fecha, hora, estado, id_paciente, id_doctor) VALUES (?,?,?,?,?,?)',
-            [id_cita, fecha, hora, estado, id_paciente, id_doctor]
+            [id_cita, fecha, hora, estado, id_paciente, selected_doctor_id]
         );
 
         conn.release();
         console.log('✅ Cita created:', id_cita);
 
-        res.json({ success: true, cita: { id_cita, fecha, hora, estado, id_paciente, id_doctor } });
+        res.json({ success: true, cita: { id_cita, fecha, hora, estado, id_paciente, id_doctor: selected_doctor_id } });
     } catch (error: any) {
         console.error('❌ Error creating cita:', error);
         if (conn) conn.release();

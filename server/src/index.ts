@@ -26,7 +26,7 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/paciente', pacienteRoutes);
 app.use('/api/cita', citaRoutes);
 app.use('/api/doctor', doctorRoutes);
-app.use('/api/especialidades', especialidadRoutes);
+app.use('/api/especialidad', especialidadRoutes);
 app.use('/api', consultaRoutes);
 
 // Connect to database and start server

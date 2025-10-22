@@ -13,18 +13,38 @@ type Especialidad = {
   descripcion: string;
 };
 
+type Doctor = {
+  id_doctor: string;
+  nombre_completo: string;
+  codigo_trabajador: string;
+  telefono: string;
+  especialidad: string;
+};
+
 export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
   const [especialidad, setEspecialidad] = useState('');
   const [especialidades, setEspecialidades] = useState<Especialidad[]>([]);
+  const [doctor, setDoctor] = useState('');
+  const [doctores, setDoctores] = useState<Doctor[]>([]);
   const [hora, setHora] = useState('09:00');
   const [fecha, setFecha] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingEspecialidades, setLoadingEspecialidades] = useState(false);
+  const [loadingDoctores, setLoadingDoctores] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchEspecialidades();
   }, []);
+
+  useEffect(() => {
+    if (especialidad) {
+      fetchDoctoresByEspecialidad(especialidad);
+    } else {
+      setDoctores([]);
+      setDoctor('');
+    }
+  }, [especialidad]);
 
   const fetchEspecialidades = async () => {
     setLoadingEspecialidades(true);
@@ -41,9 +61,39 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
     }
   };
 
+  const fetchDoctoresByEspecialidad = async (especialidadId: string) => {
+    setLoadingDoctores(true);
+    console.log('Fetching doctors for specialty ID:', especialidadId);
+    try {
+      const res = await fetch(`http://localhost:3000/api/especialidad/${especialidadId}/doctores`);
+      console.log('Response status:', res.status);
+      const data = await res.json();
+      console.log('Response data:', data);
+      if (data.success) {
+        setDoctores(data.data);
+        console.log('Doctors set:', data.data);
+      } else {
+        console.error('Error fetching doctors:', data.message);
+        setDoctores([]);
+      }
+    } catch (err) {
+      console.error('Error fetching doctores by especialidad', err);
+      setDoctores([]);
+    } finally {
+      setLoadingDoctores(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!id_usuario) return setMessage('Usuario no identificado');
-    if (!fecha || !hora || !especialidad) return setMessage('Fecha, hora y especialidad son requeridos');
+    if (!fecha || !hora || !especialidad || !doctor) return setMessage('Fecha, hora, especialidad y doctor son requeridos');
+
+    // Get the specialty name based on the selected ID
+    const selectedEspecialidad = especialidades.find(esp => esp.id_especialidad === especialidad);
+    if (!selectedEspecialidad) {
+      setMessage('Especialidad no válida');
+      return;
+    }
 
     setLoading(true);
     setMessage(null);
@@ -51,7 +101,13 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
       const res = await fetch('http://localhost:3000/api/cita', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_paciente: id_usuario, fecha, hora, especialidad })
+        body: JSON.stringify({ 
+          id_paciente: id_usuario, 
+          fecha, 
+          hora, 
+          especialidad: selectedEspecialidad.nombre,  // Send the name, not the ID
+          id_doctor: doctor 
+        })
       });
 
       const data = await res.json();
@@ -88,13 +144,36 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
             >
               <option value="">Seleccione una especialidad</option>
               {especialidades.map(esp => (
-                <option key={esp.id_especialidad} value={esp.nombre}>
+                <option key={esp.id_especialidad} value={esp.id_especialidad}>
                   {esp.nombre}
                 </option>
               ))}
             </select>
             {loadingEspecialidades && (
               <p style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Cargando especialidades...</p>
+            )}
+          </div>
+
+          <div>
+            <p style={{ fontSize: 12, color: '#334155', marginBottom: 6 }}>Doctor *</p>
+            <select 
+              value={doctor} 
+              onChange={e => setDoctor(e.target.value)} 
+              disabled={loadingDoctores || !especialidad}
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}
+            >
+              <option value="">Seleccione un doctor</option>
+              {doctores.map(doc => (
+                <option key={doc.id_doctor} value={doc.id_doctor}>
+                  {doc.nombre_completo} ({doc.codigo_trabajador})
+                </option>
+              ))}
+            </select>
+            {loadingDoctores && (
+              <p style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Cargando doctores...</p>
+            )}
+            {!especialidad && (
+              <p style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Seleccione una especialidad primero</p>
             )}
           </div>
 
