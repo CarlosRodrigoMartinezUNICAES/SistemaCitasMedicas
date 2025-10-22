@@ -31,6 +31,7 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
   const [loading, setLoading] = useState(false);
   const [loadingEspecialidades, setLoadingEspecialidades] = useState(false);
   const [loadingDoctores, setLoadingDoctores] = useState(false);
+  const [checkingConflict, setCheckingConflict] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -84,6 +85,20 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
     }
   };
 
+  const checkForConflict = async (doctorId: string, fecha: string, hora: string) => {
+    setCheckingConflict(true);
+    try {
+      const res = await fetch(`http://localhost:3000/api/cita/check-conflict?fecha=${encodeURIComponent(fecha)}&hora=${encodeURIComponent(hora)}&id_doctor=${encodeURIComponent(doctorId)}`);
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error('Error checking for conflict', err);
+      return { success: false, hasConflict: true, message: 'Error verificando conflictos' };
+    } finally {
+      setCheckingConflict(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!id_usuario) return setMessage('Usuario no identificado');
     if (!fecha || !hora || !especialidad || !doctor) return setMessage('Fecha, hora, especialidad y doctor son requeridos');
@@ -95,9 +110,24 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
       return;
     }
 
+    // Check for conflicts before submitting
     setLoading(true);
     setMessage(null);
+    
     try {
+      // Check if there's already an appointment for this doctor at this time
+      const conflictCheck = await checkForConflict(doctor, fecha, hora);
+      
+      if (conflictCheck.success && conflictCheck.hasConflict) {
+        setMessage(conflictCheck.message || 'El doctor ya tiene una cita agendada en esta fecha y hora');
+        setLoading(false);
+        return;
+      } else if (!conflictCheck.success) {
+        setMessage(conflictCheck.message || 'Error verificando conflictos');
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch('http://localhost:3000/api/cita', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -187,6 +217,10 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
               <input type="time" value={hora} onChange={e => setHora(e.target.value)} style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #e5e7eb' }} />
             </div>
           </div>
+
+          {(fecha && hora && doctor) && checkingConflict && (
+            <p style={{ fontSize: 11, color: '#64748b', marginTop: 4, textAlign: 'center' }}>Verificando disponibilidad del doctor...</p>
+          )}
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8 }}>
             <button style={{ background: 'transparent', border: 'none', color: '#64748b' }} onClick={() => onBack && onBack()}>Cancelar</button>

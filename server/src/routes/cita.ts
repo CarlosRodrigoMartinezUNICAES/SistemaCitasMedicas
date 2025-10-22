@@ -58,6 +58,31 @@ router.post('/', async (req, res) => {
             console.log('Validated doctor:', selected_doctor_id);
         }
 
+        // Check for existing appointment at the same time or within the 1-hour window for this doctor
+        // If appointment is at 9:00, block 9:00-10:00 (the whole hour)
+        // Two appointments overlap if: new_start < existing_end AND new_end > existing_start
+        // We consider each appointment to last 1 hour
+        const conflictCheck: any = await conn.query(
+            `SELECT id_cita, hora FROM Cita 
+             WHERE id_doctor = ? AND fecha = ?
+             AND TIME(?) < ADDTIME(hora, '01:00:00')  -- new appointment start < existing appointment end
+             AND ADDTIME(TIME(?), '01:00:00') > hora  -- new appointment end > existing appointment start`,
+            [selected_doctor_id, fecha, hora, hora]
+        );
+
+        if (conflictCheck.length > 0) {
+            console.log('❌ Conflict: Doctor already has an appointment at this date and time', { 
+                id_doctor: selected_doctor_id, 
+                fecha, 
+                hora 
+            });
+            conn.release();
+            return res.status(409).json({ 
+                success: false, 
+                message: 'El doctor ya tiene una cita agendada en esta fecha y hora' 
+            });
+        }
+
         // Generate next id_cita using numeric part
         const maxRes: any = await conn.query("SELECT MAX(CAST(SUBSTRING(id_cita,2) AS UNSIGNED)) as maxId FROM Cita");
         const maxId = (maxRes && maxRes[0] && maxRes[0].maxId) ? Number(maxRes[0].maxId) : 0;
@@ -143,6 +168,60 @@ router.get('/especialidades/list', async (req, res) => {
         console.error('❌ Error fetching especialidades:', error);
         if (conn) conn.release();
         res.status(500).json({ success: false, message: 'Error del servidor' });
+    }
+});
+
+// Check for conflicting appointments
+router.get('/check-conflict', async (req, res) => {
+    console.log('\n=== Check Appointment Conflict ===');
+    console.log('Query params:', req.query);
+    
+    const { fecha, hora, id_doctor } = req.query;
+    
+    if (!fecha || !hora || !id_doctor) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Fecha, hora e id_doctor son requeridos' 
+        });
+    }
+    
+    let conn: any;
+    try {
+        conn = await pool.getConnection();
+        
+        // Check for existing appointment at the same time or within the 1-hour window for this doctor
+        // Two appointments overlap if: new_start < existing_end AND new_end > existing_start
+        // Each appointment is considered to last 1 hour
+        const conflictCheck: any = await conn.query(
+            `SELECT id_cita, hora FROM Cita 
+             WHERE id_doctor = ? AND fecha = ?
+             AND TIME(?) < ADDTIME(hora, '01:00:00')  -- new appointment start < existing appointment end
+             AND ADDTIME(TIME(?), '01:00:00') > hora  -- new appointment end > existing appointment start`,
+            [id_doctor, fecha, hora, hora]
+        );
+        
+        conn.release();
+        
+        const hasConflict = conflictCheck.length > 0;
+        
+        console.log('Conflict check result:', { 
+            id_doctor, 
+            fecha, 
+            hora, 
+            hasConflict 
+        });
+        
+        res.json({ 
+            success: true, 
+            hasConflict,
+            message: hasConflict 
+                ? 'El doctor ya tiene una cita agendada en esta fecha y hora' 
+                : 'No hay conflictos para esta fecha y hora'
+        });
+    } catch (error: any) {
+        console.error('❌ Error checking appointment conflict:', error);
+        if (conn) conn.release();
+        res.status(500).json({ success: false, message: 'Error del servidor al verificar conflictos' });
     }
 });
 
