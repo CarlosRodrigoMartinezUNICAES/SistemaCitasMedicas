@@ -13,7 +13,9 @@ import DoctorReportes from "./pages/DoctorReportes";
 import Register from "./pages/Register";
 import "./App.css";
 import { useDebug } from "./contexts/DebugContext";
+import { type Route } from "./types";
 import DebugToggle from "./components/DebugToggle";
+import MyChatbot from "./components/Chatbot";
 
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean, error: any}> {
   constructor(props: any) {
@@ -164,6 +166,7 @@ const App: React.FC = () => {
           </CSSTransition>
         </TransitionGroup>
       </div>
+      <MyChatbot />
     </ErrorBoundary>
   );
 };
