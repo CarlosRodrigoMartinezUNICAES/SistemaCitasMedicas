@@ -1,7 +1,6 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { User, Stethoscope, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react"; // Only keep ArrowLeft
 import './Login.css';
 
 interface LoginProps {
@@ -61,11 +60,8 @@ const Login: React.FC<LoginProps> = ({ tipo_usuario, onBack, onSuccess }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
+  // Removed isLoaded state and useEffect related to it as it was unused and causing errors.
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

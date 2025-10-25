@@ -189,7 +189,7 @@ const Register: React.FC<RegisterProps> = ({ onBack, onSuccess }) => {
       console.log('Registration response:', response.data);
       
       if (response.data.success) {
-        onSuccess(response.data.userId, formData.tipo_usuario, `${formData.nombre} ${formData.apellido}`);
+        onSuccess(response.data.userId, formData.tipo_usuario);
       } else {
         setGeneralError(response.data.message || 'Error en el registro. Por favor, inténtalo de nuevo.');
       }

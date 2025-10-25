@@ -23,16 +23,16 @@ const buttonStyle: React.CSSProperties = {
   background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
   color: "#fff",
   borderRadius: 10,
-  padding: "8px 18px",
+  padding: "12px 24px", // Increased padding
   border: "none",
-  marginTop: 'auto',
   cursor: "pointer",
   fontWeight: 600,
-  fontSize: 14,
+  fontSize: 16, // Increased font size
   transition: "all 0.3s ease",
   boxShadow: "0 2px 8px rgba(59, 130, 246, 0.18)",
   position: "relative",
-  overflow: "hidden"
+  overflow: "hidden",
+  width: "fit-content", // Fit to content horizontally
 };
 
 type AnimatedCardProps = {
@@ -51,99 +51,106 @@ type AnimatedCardProps = {
 const AnimatedCard: React.FC<AnimatedCardProps> = ({
   type, icon, title, description, gradient, iconBg,
   isLoaded, hoveredCard, setHoveredCard, handleCardClick
-}) => (
-  <div
-    style={{
-      ...cardStyle,
-      opacity: isLoaded ? 1 : 0,
-      transform: isLoaded
-        ? (hoveredCard === type ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)')
-        : 'translateY(30px) scale(0.95)',
-      boxShadow: hoveredCard === type
-        ? '0 8px 20px rgba(59, 130, 246, 0.15)'
-        : '0 4px 16px rgba(59, 130, 246, 0.08)',
-      border: hoveredCard === type
-        ? '1px solid rgba(59, 130, 246, 0.2)'
-        : '1px solid rgba(59, 130, 246, 0.1)',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-    }}
-    onMouseEnter={() => {
-      setHoveredCard(type);
-    }}
-    onMouseLeave={() => {
-      setHoveredCard(null);
-    }}
-  >
-    {/* Animated background gradient */}
-    <div style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: '4px',
-      background: gradient,
-      borderRadius: '20px 20px 0 0'
-    }} />
+}) => {
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
 
-    <div style={{
-      background: iconBg,
-      padding: 14,
-      borderRadius: "50%",
-      marginBottom: 14,
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      transform: hoveredCard === type ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0deg)',
-      boxShadow: hoveredCard === type
-        ? '0 4px 16px rgba(59, 130, 246, 0.25)'
-        : '0 2px 8px rgba(59, 130, 246, 0.12)'
-    }}>
-      {icon}
-    </div>
+  const defaultButtonBackground = type === 'Paciente'
+    ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+    : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
 
-    <h2 style={{
-      fontSize: 19,
-      fontWeight: 700,
-      color: "#1e293b",
-      marginBottom: 10,
-      background: gradient,
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text'
-    }}>
-      {title}
-    </h2>
+  const hoverButtonBackground = type === 'Paciente'
+    ? 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)'
+    : 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)';
 
-    <p style={{
-      color: "#64748b",
-      fontSize: 13,
-      marginBottom: 14,
-      lineHeight: 1.5
-    }}>
-      {description}
-    </p>
-
-    <button
+  return (
+    <div
       style={{
-        ...buttonStyle,
-        transform: hoveredCard === type ? 'scale(1.05)' : 'scale(1)',
+        ...cardStyle,
+        opacity: isLoaded ? 1 : 0,
+        transform: isLoaded
+          ? (hoveredCard === type ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)')
+          : 'translateY(30px) scale(0.95)',
         boxShadow: hoveredCard === type
-          ? '0 4px 16px rgba(59, 130, 246, 0.3)'
-          : '0 2px 8px rgba(59, 130, 246, 0.18)',
+          ? '0 8px 20px rgba(59, 130, 246, 0.15)'
+          : '0 4px 16px rgba(59, 130, 246, 0.08)',
+        border: hoveredCard === type
+          ? '1px solid rgba(59, 130, 246, 0.2)'
+          : '1px solid rgba(59, 130, 246, 0.1)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
-      onClick={() => handleCardClick(type)}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
-        e.currentTarget.style.transform = 'scale(1.05)';
+      onMouseEnter={() => {
+        setHoveredCard(type);
       }}
-      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-        e.currentTarget.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-        e.currentTarget.style.transform = 'scale(1)';
+      onMouseLeave={() => {
+        setHoveredCard(null);
       }}
     >
-      Acceder como {type}
-    </button>
-  </div>
-);
+      {/* Animated background gradient */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '4px',
+        background: gradient,
+        borderRadius: '20px 20px 0 0'
+      }} />
+
+      <div style={{
+        background: iconBg,
+        padding: 14,
+        borderRadius: "50%",
+        marginBottom: 14,
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        transform: hoveredCard === type ? 'scale(1.1) rotate(5deg)' : 'scale(1) rotate(0deg)',
+        boxShadow: hoveredCard === type
+          ? '0 4px 16px rgba(59, 130, 246, 0.25)'
+          : '0 2px 8px rgba(59, 130, 246, 0.12)'
+      }}>
+        {icon}
+      </div>
+
+      <h2 style={{
+        fontSize: 19,
+        fontWeight: 700,
+        color: "#1e293b",
+        marginBottom: 10,
+        background: gradient,
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text'
+      }}>
+        {title}
+      </h2>
+
+      <p style={{
+        color: "#64748b",
+        fontSize: 13,
+        marginBottom: 14,
+        lineHeight: 1.5
+      }}>
+        {description}
+      </p>
+
+      <button
+        style={{
+          ...buttonStyle,
+          background: isButtonHovered ? hoverButtonBackground : defaultButtonBackground,
+          transform: isButtonHovered ? 'scale(1.05)' : 'scale(1)',
+          boxShadow: isButtonHovered
+            ? '0 4px 16px rgba(59, 130, 246, 0.3)'
+            : '0 2px 8px rgba(59, 130, 246, 0.18)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+        onClick={() => handleCardClick(type)}
+        onMouseEnter={() => setIsButtonHovered(true)}
+        onMouseLeave={() => setIsButtonHovered(false)}
+      >
+        Acceder como {type}
+      </button>
+    </div>
+  );
+};
 
 type LandingProps = {
   onNavigate: (route: any) => void;
@@ -325,7 +332,7 @@ const LandingPage: React.FC<LandingProps> = ({ onNavigate }) => {
           type="Doctor"
           icon={<Stethoscope size={36} color="#ffffff" />}
           title="Panel Médico"
-          description="Administra citas, pacientes y consultas médicas"
+          description="Administra citas, pacientes y consultas médicas y mucho más"
           gradient="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
           iconBg="linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
           isLoaded={isLoaded}

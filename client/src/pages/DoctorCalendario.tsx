@@ -127,17 +127,17 @@ export default function DoctorCalendario({ id_usuario, nombre_completo, onBack, 
         console.log('Processed appointments sample:', processedAppointments.slice(0, 3));
         // Generate informational messages
         const todayLocal = toLocalYMD(new Date());
-        const pastAppointments = processedAppointments.filter(a => a.fecha < todayLocal && a.estado === 'Pendiente');
-        const futureAppointments = processedAppointments.filter(a => a.fecha > todayLocal);
+        const pastAppointments = processedAppointments.filter((a: Appointment) => a.fecha < todayLocal && a.estado === 'Pendiente');
+        const futureAppointments = processedAppointments.filter((a: Appointment) => a.fecha > todayLocal);
 
         const messages: string[] = [];
         if (pastAppointments.length > 0) {
-          const pastDates = [...new Set(pastAppointments.map(a => a.fecha))].sort();
+          const pastDates = [...new Set(pastAppointments.map((a: Appointment) => a.fecha))].sort();
           const formattedDates = pastDates.map(date => new Date(date + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })).join(', ');
           messages.push(`Tiene ${pastAppointments.length} citas pasadas sin atender en las siguientes fechas: ${formattedDates}.`);
         }
         if (futureAppointments.length > 0) {
-          const nextAppointmentDate = futureAppointments.sort((a, b) => a.fecha.localeCompare(b.fecha))[0].fecha;
+          const nextAppointmentDate = futureAppointments.sort((a: Appointment, b: Appointment) => a.fecha.localeCompare(b.fecha))[0].fecha;
           messages.push(`Tiene citas programadas para fechas futuras, la más próxima es el ${new Date(nextAppointmentDate + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}.`);
         }
         setInfoMessages(messages);

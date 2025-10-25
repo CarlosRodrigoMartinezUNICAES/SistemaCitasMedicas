@@ -1,4 +1,4 @@
-import { Calendar, Phone, User, Clock, Stethoscope, ArrowLeft } from "lucide-react";
+import { Calendar, Phone, User, Stethoscope, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 
