@@ -17,6 +17,7 @@ import { type Route } from "./types";
 import DebugToggle from "./components/DebugToggle";
 import MyChatbot from "./components/Chatbot";
 
+
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean, error: any}> {
   constructor(props: any) {
     super(props);
@@ -110,9 +111,9 @@ const App: React.FC = () => {
           return isDebugMode ? (
             <div style={{background: 'rgba(0,200,200,0.1)', border: '2px solid teal'}}>
               <span>DEBUG: RegisterPage</span>
-              <Register 
-                onBack={() => setRoute({ name: 'landing' })} 
-                onSuccess={handleLoginSuccess} 
+              <Register
+                onBack={() => setRoute({ name: 'landing' })}
+                onSuccess={handleLoginSuccess}
               />
             </div>
           ) : <Register onBack={() => setRoute({ name: 'landing' })} onSuccess={handleLoginSuccess} />;
@@ -151,6 +152,8 @@ const App: React.FC = () => {
   nodeRefs[routeKey] = React.createRef<HTMLDivElement>();
   }
   const nodeRef = nodeRefs[routeKey];
+  const [showChatbot, setShowChatbot] = useState(false);
+
   return (
     <ErrorBoundary>
       <DebugToggle />
@@ -166,7 +169,41 @@ const App: React.FC = () => {
           </CSSTransition>
         </TransitionGroup>
       </div>
-      <MyChatbot />
+      <div style={{ position: 'fixed', bottom: '20px', right: '10px', zIndex: 1000 }}>
+        {!showChatbot && (
+          <button
+            onClick={() => setShowChatbot(true)}
+            style={{
+              backgroundColor: '#376B7E',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '50px',
+              height: '50px',
+              fontSize: '24px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+            }}
+          >
+            💬
+          </button>
+        )}
+        <div style={{
+          display: showChatbot ? 'block' : 'none',
+
+          height: '500px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          position: 'relative',
+          marginTop: showChatbot ? '30px' : '0px', // Adjust margin to make space for the close button
+        }}>
+          <MyChatbot setShowChatbot={setShowChatbot}/>
+        </div>
+      </div>
     </ErrorBoundary>
   );
 };
