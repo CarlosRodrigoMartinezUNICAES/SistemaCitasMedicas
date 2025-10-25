@@ -1,8 +1,21 @@
+interface ChatbotMessage {
+  message: string;
+  type: string;
+  // Add other properties if known, e.g., id, sender, etc.
+}
+
+interface ChatbotState {
+  messages: ChatbotMessage[];
+  // Add other state properties if known
+}
+
 class ActionProvider {
-  constructor(createChatBotMessage, setStateFunc, createClientMessage) {
+  private createChatBotMessage: (message: string, options?: any) => ChatbotMessage;
+  private setState: (updater: (prevState: ChatbotState) => ChatbotState) => void;
+
+  constructor(createChatBotMessage: (message: string, options?: any) => ChatbotMessage, setStateFunc: (updater: (prevState: ChatbotState) => ChatbotState) => void) {
     this.createChatBotMessage = createChatBotMessage;
     this.setState = setStateFunc;
-    this.createClientMessage = createClientMessage;
   }
 
   // General Handlers
@@ -91,45 +104,46 @@ class ActionProvider {
     this.updateChatbotState(message);
   };
 
-    displayGeneralOptions = () => {
-      const optionsMessage = this.createChatBotMessage(
-        "Aquí tienes una guía de comandos que puedes usar:\n\n" +
-        "Escribe 'ayuda paciente' para ver comandos específicos para pacientes.\n" +
-        "Escribe 'ayuda doctor' para ver comandos específicos para doctores.\n\n" +
-        "Comandos Generales:\n" +
-        "  ➡️ 'sesion' o 'login': Información sobre cómo iniciar sesión.\n" +
-        "  ➡️ 'registro' o 'registrar': Información sobre cómo registrarte.\n" +
-        "  ➡️ 'inicio' o 'home': Información sobre la página principal.\n\n" +
-        "Escribe 'ayuda' nuevamente para ver esta lista."
-      );
-      this.updateChatbotState(optionsMessage);
-    };
-  
-    displayPatientOptions = () => {
-      const optionsMessage = this.createChatBotMessage(
-        "Comandos para Pacientes:\n\n" +
-        "   appointments: 🗓️ 'citas paciente' o 'mis citas': Ver y cancelar tus citas.\n" +
-        "  history: 🩺 'historial paciente' o 'historial medico': Ver tu historial médico.\n" +
-        "  profile: 👤 'perfil paciente' o 'mi perfil': Ver y editar tu perfil.\n" +
-        "  schedule: ➕ 'agendar cita': Agendar una nueva cita.\n\n" +
-        "Escribe 'ayuda' para ver la lista completa de comandos."
-      );
-      this.updateChatbotState(optionsMessage);
-    };
-  
-    displayDoctorOptions = () => {
-      const optionsMessage = this.createChatBotMessage(
-        "Comandos para Doctores:\n\n" +
-        "  calendar: 📅 'calendario doctor' o 'mi calendario': Ver tu calendario y estadísticas.\n" +
-        "  appointments: 📝 'citas doctor' o 'gestionar citas': Gestionar tus citas.\n" +
-        "  patients: 🧑‍⚕️ 'pacientes doctor' o 'mis pacientes': Ver tu lista de pacientes.\n" +
-        "  reports: 📊 'reportes doctor' o 'mis reportes': Ver tus reportes y estadísticas.\n\n" +
-        "Escribe 'ayuda' para ver la lista completa de comandos."
-      );
-      this.updateChatbotState(optionsMessage);
-    };
-  
-    updateChatbotState = (message) => {    this.setState((prevState) => ({
+  displayGeneralOptions = () => {
+    const optionsMessage = this.createChatBotMessage(
+      "Aquí tienes una guía de comandos que puedes usar:\n\n" +
+      "Escribe 'ayuda paciente' para ver comandos específicos para pacientes.\n" +
+      "Escribe 'ayuda doctor' para ver comandos específicos para doctores.\n\n" +
+      "Comandos Generales:\n" +
+      "  ➡️ 'sesion' o 'login': Información sobre cómo iniciar sesión.\n" +
+      "  ➡️ 'registro' o 'registrar': Información sobre cómo registrarte.\n" +
+      "  ➡️ 'inicio' o 'home': Información sobre la página principal.\n\n" +
+      "Escribe 'ayuda' nuevamente para ver esta lista."
+    );
+    this.updateChatbotState(optionsMessage);
+  };
+
+  displayPatientOptions = () => {
+    const optionsMessage = this.createChatBotMessage(
+      "Comandos para Pacientes:\n\n" +
+      "   appointments: 🗓️ 'citas paciente' o 'mis citas': Ver y cancelar tus citas.\n" +
+      "  history: 🩺 'historial paciente' o 'historial medico': Ver tu historial médico.\n" +
+      "  profile: 👤 'perfil paciente' o 'mi perfil': Ver y editar tu perfil.\n" +
+      "  schedule: ➕ 'agendar cita': Agendar una nueva cita.\n\n" +
+      "Escribe 'ayuda' para ver la lista completa de comandos."
+    );
+    this.updateChatbotState(optionsMessage);
+  };
+
+  displayDoctorOptions = () => {
+    const optionsMessage = this.createChatBotMessage(
+      "Comandos para Doctores:\n\n" +
+      "  calendar: 📅 'calendario doctor' o 'mi calendario': Ver tu calendario y estadísticas.\n" +
+      "  appointments: 📝 'citas doctor' o 'gestionar citas': Gestionar tus citas.\n" +
+      "  patients: 🧑‍⚕️ 'pacientes doctor' o 'mis pacientes': Ver tu lista de pacientes.\n" +
+      "  reports: 📊 'reportes doctor' o 'mis reportes': Ver tus reportes y estadísticas.\n\n" +
+      "Escribe 'ayuda' para ver la lista completa de comandos."
+    );
+    this.updateChatbotState(optionsMessage);
+  };
+
+  updateChatbotState = (message: ChatbotMessage) => {
+    this.setState((prevState: ChatbotState) => ({
       ...prevState,
       messages: [...prevState.messages, message],
     }));

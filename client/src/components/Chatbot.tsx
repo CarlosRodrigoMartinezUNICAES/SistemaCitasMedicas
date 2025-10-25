@@ -15,7 +15,7 @@ interface MyChatbotProps {
 
 const MyChatbot: React.FC<MyChatbotProps> = ({ setShowChatbot }) => {
   const config = {
-    initialMessages: [createChatBotMessage("¡Hola! Soy tu asistente virtual. ¿En qué puedo ayudarte? Escribe 'ayuda' para ver la lista completa de comandos.", { withAvatar: true })],
+    initialMessages: [createChatBotMessage("¡Hola! Soy tu asistente virtual. ¿En qué puedo ayudarte? Escribe 'ayuda' para ver la lista completa de comandos.", {})],
     botName: "Asistente Virtual",
     customStyles: {
       botMessageBox: {
@@ -28,7 +28,7 @@ const MyChatbot: React.FC<MyChatbotProps> = ({ setShowChatbot }) => {
     customComponents: {
       header: (props: any) => <ChatbotHeader {...props} setShowChatbot={setShowChatbot} />,
     },
-    widgets: [], // Re-add an empty widgets array
+    widgets: [],
   };
 
   return (
@@ -38,8 +38,8 @@ const MyChatbot: React.FC<MyChatbotProps> = ({ setShowChatbot }) => {
       actionProvider={ActionProvider}
       headerText="Asistente Virtual"
       placeholderText="Escribe tu mensaje aquí..."
-      style={{ width: '100%' }}
-      // react-chatbot-kit manages history internally, no direct disable prop like react-chatbotify
+      // The style prop is removed as it's not supported directly
+      // The withAvatar option is removed from createChatBotMessage
     />
   );
 };

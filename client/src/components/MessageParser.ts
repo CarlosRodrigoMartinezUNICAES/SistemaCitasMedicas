@@ -1,10 +1,30 @@
+interface ActionProviderInterface {
+  displayPatientOptions: () => void;
+  displayDoctorOptions: () => void;
+  displayGeneralOptions: () => void;
+  handleLoginInfo: () => void;
+  handleRegisterInfo: () => void;
+  handleLandingPageInfo: () => void;
+  handlePatientAppointmentsInfo: () => void;
+  handlePatientMedicalHistoryInfo: () => void;
+  handlePatientProfileInfo: () => void;
+  handleScheduleAppointmentInfo: () => void;
+  handleDoctorCalendarInfo: () => void;
+  handleDoctorAppointmentsInfo: () => void;
+  handleDoctorPatientsInfo: () => void;
+  handleDoctorReportsInfo: () => void;
+  handleUnknown: () => void;
+}
+
+
 class MessageParser {
-  constructor(actionProvider, state) {
+  private actionProvider: ActionProviderInterface;
+
+  constructor(actionProvider: ActionProviderInterface) {
     this.actionProvider = actionProvider;
-    this.state = state;
   }
 
-  parse(message) {
+  parse(message: string) {
     const lowerCaseMessage = message.toLowerCase();
 
     if (lowerCaseMessage.includes("ayuda paciente")) {
