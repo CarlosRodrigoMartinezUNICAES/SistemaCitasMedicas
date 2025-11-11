@@ -41,6 +41,7 @@ export default function AgendarCita({ id_usuario, onBack, onCreated }: Props) {
   }, []);
 
   useEffect(() => {
+    console.log('Especialidad changed:', especialidad);
     if (especialidad) {
       fetchDoctoresByEspecialidad(especialidad);
     } else {

@@ -62,7 +62,8 @@ router.get('/:especialidadId/doctores', async (req, res) => {
             params = [especialidadId];
         }
         
-        const [rows]: any = await pool.query(query, params);
+        const rows: any = await pool.query(query, params);
+        console.log('Doctors found for specialty:', especialidadId, rows);
         console.log('Doctors by specialty from DB:', rows);
         res.json({
             success: true,

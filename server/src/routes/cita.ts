@@ -159,7 +159,7 @@ router.get('/especialidades/list', async (req, res) => {
     let conn: any;
     try {
         conn = await pool.getConnection();
-        const [especialidades]: any = await conn.query('SELECT id_especialidad, nombre, descripcion FROM Especialidad ORDER BY nombre');
+        const especialidades: any = await conn.query('SELECT id_especialidad, nombre, descripcion FROM Especialidad ORDER BY nombre');
         conn.release();
         
         console.log('✅ Especialidades found:', especialidades.length);
