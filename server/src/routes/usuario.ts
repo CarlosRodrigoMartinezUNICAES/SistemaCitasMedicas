@@ -23,11 +23,31 @@ router.post('/register/paciente', async (req, res) => {
         });
     }
 
+    // More specific validations
+    if (password.length < 8) {
+        return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 8 caracteres' });
+    }
+    if (!/^\d{8}-\d$/.test(dui)) {
+        return res.status(400).json({ success: false, message: 'El formato del DUI no es válido' });
+    }
+    if (!/^\d+$/.test(telefono)) {
+        return res.status(400).json({ success: false, message: 'El teléfono solo debe contener números' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+        return res.status(400).json({ success: false, message: 'El formato del correo electrónico no es válido' });
+    }
+    if (!Number.isInteger(edad) || edad <= 0) {
+        return res.status(400).json({ success: false, message: 'La edad debe ser un número entero positivo' });
+    }
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre_completo)) {
+        return res.status(400).json({ success: false, message: 'El nombre completo solo debe contener letras y espacios' });
+    }
+
     const connection = await pool.getConnection();
     try {
         await connection.beginTransaction();
 
-        // Check if username already exists
+        // Check if username, correo or dui already exists
         const [rows] = await connection.query(
             'SELECT id_usuario FROM Usuario WHERE username = ?',
             [username]
@@ -37,6 +57,18 @@ router.post('/register/paciente', async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'El nombre de usuario ya está en uso'
+            });
+        }
+
+        const [pacientes] = await connection.query(
+            'SELECT id_paciente FROM Paciente WHERE correo = ? OR dui = ?',
+            [correo, dui]
+        ) as any[][];
+
+        if (pacientes && pacientes.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'El correo o DUI ya está registrado'
             });
         }
 
@@ -85,6 +117,17 @@ router.post('/register/doctor', async (req, res) => {
             success: false,
             message: 'Todos los campos son requeridos'
         });
+    }
+
+    // More specific validations
+    if (password.length < 8) {
+        return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 8 caracteres' });
+    }
+    if (telefono && !/^\d+$/.test(telefono)) {
+        return res.status(400).json({ success: false, message: 'El teléfono solo debe contener números' });
+    }
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre_completo)) {
+        return res.status(400).json({ success: false, message: 'El nombre completo solo debe contener letras y espacios' });
     }
 
     const connection = await pool.getConnection();

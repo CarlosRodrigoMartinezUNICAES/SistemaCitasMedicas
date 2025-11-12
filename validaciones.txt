@@ -1,0 +1,38 @@
+Aquí está un resumen de todas las validaciones implementadas para el registro de pacientes y médicos:
+
+**Registro de Pacientes (`/register/paciente`)**
+
+*   **Verificación de Presencia:**
+    *   `username`: Requerido
+    *   `password`: Requerido
+    *   `nombre_completo`: Requerido
+    *   `telefono`: Requerido
+    *   `correo`: Requerido
+    *   `edad`: Requerido
+    *   `dui`: Requerido
+*   **Validación de Formato/Valor:**
+    *   `password`: Debe tener al menos 8 caracteres.
+    *   `dui`: Debe coincidir con el formato `00000000-0`.
+    *   `telefono`: Debe contener solo números.
+    *   `correo`: Debe ser un formato de correo electrónico válido.
+    *   `edad`: Debe ser un número entero positivo.
+    *   `nombre_completo`: Debe contener solo letras, espacios y caracteres acentuados comunes.
+*   **Validación de Unicidad:**
+    *   `username`: Debe ser único en la tabla `Usuario`.
+    *   `correo`: Debe ser único en la tabla `Paciente`.
+    *   `dui`: Debe ser único en la tabla `Paciente`.
+
+**Registro de Médicos (`/register/doctor`)**
+
+*   **Verificación de Presencia:**
+    *   `username`: Requerido
+    *   `password`: Requerido
+    *   `nombre_completo`: Requerido
+    *   `id_especialidad`: Requerido
+    *   `telefono`: Opcional
+*   **Validación de Formato/Valor:**
+    *   `password`: Debe tener al menos 8 caracteres.
+    *   `telefono`: Si se proporciona, debe contener solo números.
+    *   `nombre_completo`: Debe contener solo letras, espacios y caracteres acentuados comunes.
+*   **Validación de Unicidad:**
+    *   `username`: Debe ser único en la tabla `Usuario`.
