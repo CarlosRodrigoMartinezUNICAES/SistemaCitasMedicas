@@ -17,8 +17,6 @@ export const pool = createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     connectionLimit: 5,
-    min: 2, // Minimum number of connections in the pool
-    acquireTimeout: 10000, // 10 seconds
     debug: false // disable low-level packet dumps; keep higher-level logs below
 });
 
