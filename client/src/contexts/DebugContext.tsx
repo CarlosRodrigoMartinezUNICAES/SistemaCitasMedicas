@@ -7,7 +7,7 @@ type DebugContextType = {
   toggleDebugMode: () => void;
 };
 
-const DebugContext = createContext<DebugContextType | undefined>(undefined);
+export const DebugContext = createContext<DebugContextType | undefined>(undefined);
 
 export const DebugProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isDebugMode, setIsDebugMode] = useState(false);

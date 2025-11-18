@@ -13,7 +13,7 @@ router.get('/:id', async (req, res) => {
         const conn = await pool.getConnection();
         console.log('DB connection acquired');
 
-        // Get paciente info
+        // Get paciente info (still needed as SP doesn't return full patient profile)
         const pacienteQuery = `SELECT p.id_paciente, p.nombre_completo, p.telefono, p.correo, p.edad, p.dui, u.username
                        FROM Paciente p
                        JOIN Usuario u ON p.id_usuario = u.id_usuario
@@ -27,33 +27,20 @@ router.get('/:id', async (req, res) => {
         }
         const paciente = pacienteResults[0];
 
-        // Get citas for this paciente
-        const citasQuery = `SELECT c.id_cita, c.fecha, c.hora, c.estado, c.id_doctor, d.nombre_completo AS doctor_nombre, e.nombre AS especialidad
-            FROM Cita c
-            JOIN Doctor d ON c.id_doctor = d.id_doctor
-            JOIN Especialidad e ON d.id_especialidad = e.id_especialidad
-            WHERE c.id_paciente = ?
-            ORDER BY c.fecha DESC, c.hora DESC`;
-        const citas = await conn.query(citasQuery, [paciente.id_paciente]);
+        // Call the stored procedure to get medical history
+        const [historyRows] = await conn.query(
+            'CALL ObtenerHistorialMedicoPaciente(?)',
+            [paciente.id_paciente]
+        ) as any[][];
 
-        // Get consultas for this paciente
-        const consultasQuery = `
-            SELECT co.id_consulta, co.reporte_paciente, co.fecha_consulta,
-                   c.id_cita, d.nombre_completo AS doctor_nombre, e.nombre AS especialidad
-            FROM Consulta co
-            JOIN Cita c ON co.id_cita = c.id_cita
-            JOIN Doctor d ON c.id_doctor = d.id_doctor
-            JOIN Especialidad e ON d.id_especialidad = e.id_especialidad
-            WHERE c.id_paciente = ?
-            ORDER BY co.fecha_consulta DESC`;
-        const consultas = await conn.query(consultasQuery, [paciente.id_paciente]);
+        // The stored procedure returns an array of results, the actual data is in the first element
+        const historial_medico = historyRows[0];
 
         conn.release();
 
         console.log('Paciente found:', paciente);
-        console.log('Citas found:', citas.length);
-        console.log('Consultas found:', consultas.length);
-        res.json({ success: true, paciente, citas, consultas });
+        console.log('Historial Médico found:', historial_medico.length);
+        res.json({ success: true, paciente, historial_medico });
     } catch (error: any) {
         console.error('Error fetching paciente:', error.message);
         res.status(500).json({ success: false, message: 'Error del servidor' });

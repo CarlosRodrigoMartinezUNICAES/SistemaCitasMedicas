@@ -243,24 +243,35 @@ router.get('/disponibilidad/:id_doctor/:fecha', async (req, res) => {
     try {
         conn = await pool.getConnection();
         
-        // Get all reserved appointments for this doctor on the specific date
-        // Calculate the busy time slots (appointment time + 1 hour) directly in SQL
-        const reservedSlots: any = await conn.query(
-            `SELECT hora AS start_time, ADDTIME(hora, '01:00:00') AS end_time FROM Cita 
-             WHERE id_doctor = ? AND fecha = ?
-             ORDER BY hora`,
+        // Call the stored procedure
+        const rawResult = await conn.query(
+            'CALL ObtenerCitasDoctorPorFecha(?, ?)',
             [id_doctor, fecha]
         );
+        console.log('Raw result from ObtenerCitasDoctorPorFecha:', rawResult);
+
+        // The stored procedure returns an array of results, the actual data is in the first element
+        const appointments = rawResult[0];
         
-        conn.release();
-        
-        // Format the time ranges
-        const busySlots = reservedSlots.map((slot: any) => {
+        // Format the time ranges to match the original busySlots structure
+        const busySlots = appointments.map((appointment: any) => {
+            // Assuming each appointment lasts 1 hour, similar to the original logic
+            const startTime = appointment.hora;
+            // MariaDB's ADDTIME function equivalent in JS for display purposes
+            const [hours, minutes, seconds] = startTime.split(':').map(Number);
+            const endTime = new Date(2000, 0, 1, hours + 1, minutes, seconds).toTimeString().slice(0, 8);
+
             return {
-                start: slot.start_time,
-                end: slot.end_time
+                start: startTime,
+                end: endTime,
+                id_cita: appointment.id_cita,
+                estado: appointment.estado,
+                id_paciente: appointment.id_paciente,
+                nombre_paciente: appointment.nombre_paciente
             };
         });
+        
+        conn.release();
         
         console.log(`Reserved slots for doctor ${id_doctor} on ${fecha}:`, busySlots);
         

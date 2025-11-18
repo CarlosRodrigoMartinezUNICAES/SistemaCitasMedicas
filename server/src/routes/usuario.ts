@@ -15,7 +15,7 @@ const generateId = (prefix: string): string => {
 router.post('/register/paciente', async (req, res) => {
     const { username, password, nombre_completo, telefono, correo, edad, dui } = req.body;
 
-    // Validate required fields
+    // Validate required fields (application-level validation remains)
     if (!username || !password || !nombre_completo || !telefono || !correo || !edad || !dui) {
         return res.status(400).json({
             success: false,
@@ -23,7 +23,7 @@ router.post('/register/paciente', async (req, res) => {
         });
     }
 
-    // More specific validations
+    // More specific validations (application-level validation remains)
     if (password.length < 8) {
         return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 8 caracteres' });
     }
@@ -45,58 +45,34 @@ router.post('/register/paciente', async (req, res) => {
 
     const connection = await pool.getConnection();
     try {
-        await connection.beginTransaction();
-
-        // Check if username, correo or dui already exists
-        const [rows] = await connection.query(
-            'SELECT id_usuario FROM Usuario WHERE username = ?',
-            [username]
-        ) as any[][];
-
-        if (rows && rows.length > 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'El nombre de usuario ya está en uso'
-            });
-        }
-
-        const [pacientes] = await connection.query(
-            'SELECT id_paciente FROM Paciente WHERE correo = ? OR dui = ?',
-            [correo, dui]
-        ) as any[][];
-
-        if (pacientes && pacientes.length > 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'El correo o DUI ya está registrado'
-            });
-        }
-
         // In a real app, you should hash the password with bcrypt
         const passwordHash = password; // await bcrypt.hash(password, 10);
-        const userId = generateId('P');
-        
-        // Create user
+
+        // Call the stored procedure
         await connection.query(
-            'INSERT INTO Usuario (id_usuario, username, password_hash, tipo_usuario) VALUES (?, ?, ?, "Paciente")',
-            [userId, username, passwordHash]
+            'CALL RegistrarPaciente(?, ?, ?, ?, ?, ?, ?, @p_id_paciente_generado, @p_mensaje)',
+            [username, passwordHash, nombre_completo, telefono, correo, edad, dui]
         );
 
-        // Create patient
-        await connection.query(
-            'INSERT INTO Paciente (id_paciente, id_usuario, nombre_completo, telefono, correo, edad, dui) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [userId, userId, nombre_completo, telefono, correo, edad, dui]
+        const rawResult = await connection.query(
+            'SELECT @p_id_paciente_generado AS p_id_paciente_generado, @p_mensaje AS p_mensaje'
         );
+        console.log('Raw result from SELECTing output vars:', rawResult);
+        const { p_id_paciente_generado: generatedId, p_mensaje: message } = rawResult[0];
 
-        await connection.commit();
+        if (message.startsWith('Error:')) {
+            return res.status(400).json({
+                success: false,
+                message: message
+            });
+        }
 
         res.status(201).json({
             success: true,
-            message: 'Paciente registrado exitosamente',
-            userId
+            message: message,
+            userId: generatedId
         });
     } catch (error) {
-        await connection.rollback();
         console.error('Error registering patient:', error);
         res.status(500).json({
             success: false,

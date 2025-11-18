@@ -32,7 +32,7 @@ const Register: React.FC<RegisterProps> = ({ onBack, onSuccess }) => {
   React.useEffect(() => {
     const loadEspecialidades = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/especialidades');
+        const response = await axios.get('http://localhost:3000/api/especialidad');
         if (response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
           const sortedEspecialidades = [...response.data.data].sort((a, b) => 
             a.id_especialidad.localeCompare(b.id_especialidad)

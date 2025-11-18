@@ -6,11 +6,16 @@ const router = Router();
 // Get all specialties
 router.get('/', async (req, res) => {
     try {
-        const [rows]: any = await pool.query('SELECT id_especialidad as id_especialidad, nombre, descripcion FROM Especialidad');
-        console.log('Especialidades from DB:', rows);
+        const rows: any[] = await pool.query('SELECT id_especialidad as id_especialidad, nombre, descripcion FROM Especialidad');
+        
+        console.log('Especialidades from DB (raw queryResult - now just rows):', rows); // Log raw result for inspection
+        
+        // Ensure 'data' is always an array. If 'rows' is not an array (e.g., empty result), make it an empty array.
+        const specialtiesArray = Array.isArray(rows) ? rows : [];
+
         res.json({
             success: true,
-            data: rows
+            data: specialtiesArray
         });
     } catch (error) {
         console.error('Error fetching specialties:', error);

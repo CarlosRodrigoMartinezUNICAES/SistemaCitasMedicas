@@ -4,9 +4,7 @@ import { pool } from '../utils/db';
 const router = Router();
 
 router.post('/login', async (req, res) => {
-    console.log('\n=== Login Attempt ===');
-    console.log('Time:', new Date().toISOString());
-    console.log('Request Body:', req.body);
+
     
     const { username, password, tipo_usuario } = req.body;
     
