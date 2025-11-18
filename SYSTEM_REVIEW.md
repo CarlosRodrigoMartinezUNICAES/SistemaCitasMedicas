@@ -31,21 +31,9 @@
 
 ## ⚠️ CRITICAL MISSING FUNCTIONALITIES
 
-### 1. **APPOINTMENT STATUS MANAGEMENT** ⭐ HIGH PRIORITY
-**Problem:** Doctors cannot update appointment status (Pendiente → Confirmada → Atendida)
-- No backend endpoint to UPDATE appointment status
-- Doctor can only VIEW appointments with "Ver Detalles" alert
-- No way to mark appointments as completed or cancelled
 
-**Impact:** System cannot track appointment lifecycle in a real medical facility
 
-### 2. **APPOINTMENT CANCELLATION** ⭐ HIGH PRIORITY
-**Problem:** Neither patients nor doctors can cancel appointments
-- Database supports 'Cancelada' status but no UI/API to use it
-- Patients should be able to cancel their own appointments
-- Doctors should be able to cancel appointments
 
-**Impact:** No flexibility for real-world schedule changes
 
 ### 3. **MEDICAL CONSULTATION RECORDS** ⭐ MEDIUM PRIORITY
 **Problem:** No way to create consultation records after appointments
@@ -84,7 +72,6 @@
 6. **Appointment reminders** - Automatic notifications before appointments
 
 ### Data Quality
-1. **Specialty dropdown** - Currently free text, should use Especialidad table
 2. **Doctor selection** - Let patients choose specific doctors
 3. **Appointment time slots** - Predefined slots instead of free time input
 4. **Appointment reason/notes** - Info field in AgendarCita is unused
@@ -96,7 +83,6 @@
 4. **Role-based access control** - Enforce doctor vs patient routes
 
 ### Performance
-1. **Connection pooling is good** - Already implemented
 2. **Caching** - Cache frequently accessed data (especialidades, stats)
 3. **Pagination** - For large appointment/patient lists
 4. **Lazy loading** - Load data on demand
@@ -106,19 +92,13 @@
 ## 🐛 MINOR BUGS & FIXES NEEDED
 
 ### Frontend Issues
-1. **AgendarCita unused fields** - `email` and `info` fields collected but not sent to API
-2. **DoctorCitas alert popup** - "Ver Detalles" uses basic `alert()` - should be modal
 3. **Date formatting inconsistency** - Mix of formats across pages
-4. **Error messages not user-friendly** - Generic "Error del servidor"
 
 ### Backend Issues
-1. **Error handling consistency** - Some routes missing try-catch
 2. **Validation messages** - Could be more specific
-3. **Connection release** - Some routes could fail to release on error (uses `if (conn)` pattern)
 4. **BigInt to String conversion** - Inconsistent across routes
 
 ### Database Schema
-1. **Estado values mismatch** - Schema has 'Atendida' but reports might show 'Completada'
 2. **Horario_Doctor unused** - Table exists but no implementation
 3. **Consulta validation** - Min 10 chars might be too restrictive
 
@@ -127,18 +107,18 @@
 ## 📋 IMPLEMENTATION PRIORITY
 
 ### Phase 1: Critical (Required for Production)
-1. ✅ Appointment status update (Doctor → Confirmada/Atendida)
-2. ✅ Appointment cancellation (Patient & Doctor)
+
+
 3. ✅ Double-booking prevention
 4. ✅ Create consultation records
 5. Password hashing (security)
 
 ### Phase 2: Important (Improve UX)
-1. Specialty dropdown from database
+
 2. Appointment filtering by status/date
-3. Better error messages
-4. Modal dialogs instead of alerts
-5. Use email & info fields from AgendarCita
+
+
+
 
 ### Phase 3: Nice to Have (Enhanced Features)
 1. Doctor schedule management

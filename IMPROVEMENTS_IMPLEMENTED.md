@@ -6,59 +6,15 @@
 
 ## 🎯 CRITICAL IMPROVEMENTS IMPLEMENTED
 
-### 1. ✅ **Appointment Status Management (Doctor)**
-**File:** `server/src/routes/cita.ts`, `client/src/pages/DoctorCitas.tsx`
 
-**Backend:**
-- Added `PUT /api/cita/:id/estado` endpoint
-- Validates status values (Pendiente, Confirmada, Cancelada, Atendida)
-- Checks appointment exists before updating
-- Proper error handling and connection release
-
-**Frontend:**
-- Replaced basic `alert()` with inline status dropdown
-- Doctors can change status: Pendiente → Confirmada → Atendida → Cancelada
-- Real-time UI updates after status change
-- Loading state during update
-- Auto-refreshes statistics when status changes
-- Shows patient phone number for easy contact
-
-**Impact:** Doctors can now manage appointment lifecycle properly! ⭐
 
 ---
 
-### 2. ✅ **Appointment Cancellation (Patient)**
-**File:** `client/src/pages/PacienteCitas.tsx`
 
-**Features:**
-- Cancel button appears only for "Pendiente" or "Confirmada" appointments
-- Confirmation dialog before cancellation
-- Calls status update API to mark as "Cancelada"
-- Updates local state immediately
-- Loading state shows "Cancelando..." during request
-- Disabled state prevents double-clicks
-- Cancelled appointments shown in gray color
-
-**Impact:** Patients have control over their appointments! ⭐
 
 ---
 
-### 3. ✅ **Especialidad Dropdown from Database**
-**File:** `server/src/routes/cita.ts`, `client/src/pages/AgendarCita.tsx`
 
-**Backend:**
-- Added `GET /api/cita/especialidades/list` endpoint
-- Returns all specialties from Especialidad table
-- Sorted alphabetically for better UX
-
-**Frontend:**
-- Replaced free-text input with `<select>` dropdown
-- Loads especialidades on component mount
-- Shows loading state while fetching
-- Removed unused `email` and `info` fields (were never sent to API)
-- Cleaner, more focused form
-
-**Impact:** Data integrity - prevents typos, ensures valid specialties! ⭐
 
 ---
 
@@ -68,12 +24,12 @@
 
 | Feature | Before | After |
 |---------|--------|-------|
-| Doctor can update appointment status | ❌ No (only alert dialog) | ✅ Yes (inline dropdown) |
-| Patient can cancel appointment | ❌ No | ✅ Yes (with confirmation) |
-| Especialidad selection | ⚠️ Free text (typo risk) | ✅ Database dropdown |
+
+
+
 | Appointment lifecycle tracking | ❌ Incomplete | ✅ Full lifecycle |
-| Unused form fields | ⚠️ Email, info collected but ignored | ✅ Removed |
-| Doctor sees patient contact | ❌ Only in alert | ✅ Shown in card |
+
+
 
 ---
 
@@ -81,19 +37,17 @@
 
 ### API Endpoints Added
 ```
-PUT  /api/cita/:id/estado          - Update appointment status
-GET  /api/cita/especialidades/list - Get all medical specialties
+
+
 ```
 
 ### Database Schema Compliance
-- Status values match DB constraint: 'Pendiente', 'Confirmada', 'Cancelada', 'Atendida'
+
 - Especialidad references Especialidad table (id_especialidad, nombre, descripcion)
 
 ### Error Handling
-- Backend validates all inputs
-- Frontend shows user-friendly error messages
-- Connection pooling ensures no leaks
-- Proper try-catch-finally blocks
+- Connection pooling configured with `connectionLimit`, `min`, and `acquireTimeout`.
+
 
 ---
 

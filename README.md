@@ -61,6 +61,11 @@ El archivo `.env` ya está incluido, solo asegúrate de tener las credenciales c
 
 ---
 
+## 📚 Documentación Completa
+Para una descripción exhaustiva de la funcionalidad del proyecto, arquitectura técnica, especificaciones de la API y diseño de la base de datos, consulta el archivo [FUNCTIONAL_AND_TECHNICAL_SPEC.md](FUNCTIONAL_AND_TECHNICAL_SPEC.md).
+
+---
+
 ## ⚙️ Guía de instalación completa
 
 A continuación se detallan los pasos para configurar el proyecto en Windows, Linux o macOS.
