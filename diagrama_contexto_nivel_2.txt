@@ -1,0 +1,39 @@
+# Diagrama de Contexto - Nivel 2
+
+## Módulo de Agendamiento de Citas - Componentes Internos
+
+### Componentes:
+- **Interfaz de Usuario (UI) de Agendamiento:** Permite al Paciente seleccionar especialidad, doctor, fecha y hora.
+- **Servicio de Búsqueda de Doctores:** Busca doctores por especialidad y disponibilidad.
+- **Servicio de Disponibilidad:** Consulta los horarios disponibles de un doctor en una fecha específica.
+- **Servicio de Verificación de Conflictos:** Asegura que no haya solapamiento de citas para el doctor o paciente.
+- **Servicio de Creación de Citas:** Registra la nueva cita en la base de datos.
+- **Base de Datos de Citas:** Almacena toda la información de las citas.
+- **Base de Datos de Doctores/Especialidades:** Contiene la información de los doctores y sus especialidades.
+
+### Interacciones:
+
+```mermaid
+graph TD
+    A[Paciente] -->|1. Seleccionar Opciones| B(UI de Agendamiento)
+    B -->|2. Buscar Doctores (Especialidad)| C(Servicio de Búsqueda de Doctores)
+    C -->|3. Consultar Doctores| G(Base de Datos de Doctores/Especialidades)
+    G -->|4. Doctores Encontrados| C
+    C -->|5. Mostrar Doctores| B
+
+    B -->|6. Seleccionar Doctor/Fecha| D(Servicio de Disponibilidad)
+    D -->|7. Consultar Citas Existentes| F(Base de Datos de Citas)
+    F -->|8. Citas del Doctor| D
+    D -->|9. Horarios Disponibles| B
+
+    B -->|10. Seleccionar Hora/Confirmar| E(Servicio de Verificación de Conflictos)
+    E -->|11. Verificar Solapamiento| F
+    F -->|12. Resultado Verificación| E
+    E -->|13. Conflicto Detectado/No Conflicto| B
+
+    B -->|14. Enviar Datos de Cita| H(Servicio de Creación de Citas)
+    H -->|15. Guardar Cita| F
+    F -->|16. Cita Guardada| H
+    H -->|17. Confirmación de Cita| B
+    B -->|18. Mostrar Confirmación| A
+```

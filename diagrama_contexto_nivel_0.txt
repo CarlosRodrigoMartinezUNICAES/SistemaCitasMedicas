@@ -1,0 +1,11 @@
+# Diagrama de Contexto - Nivel 0
+
+## Sistema de Citas Médicas
+
+### Actores Externos:
+- Paciente: Usuario que agenda, consulta y gestiona sus citas médicas.
+- Doctor: Profesional médico que gestiona su calendario, citas y pacientes.
+- Administrador: Usuario con privilegios para gestionar usuarios, doctores, especialidades y configuraciones del sistema.
+
+### Flujo General:
+El Sistema de Citas Médicas interactúa con Pacientes, Doctores y Administradores para facilitar la gestión de citas y la información relacionada.

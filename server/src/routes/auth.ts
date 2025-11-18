@@ -47,17 +47,38 @@ router.post('/login', async (req, res) => {
         console.log('✓ Database connection released');
 
         if (user.length > 0) {
+            const userId = user[0].id_usuario;
+            const userTipo = user[0].tipo_usuario;
+            let nombre_completo = null;
+
+            // Fetch nombre_completo based on user type
+            if (userTipo === 'Paciente') {
+                const pacienteQuery = 'SELECT nombre_completo FROM Paciente WHERE id_usuario = ?';
+                const pacienteResult = await conn.query(pacienteQuery, [userId]);
+                if (pacienteResult.length > 0) {
+                    nombre_completo = pacienteResult[0].nombre_completo;
+                }
+            } else if (userTipo === 'Doctor') {
+                const doctorQuery = 'SELECT nombre_completo FROM Doctor WHERE id_usuario = ?';
+                const doctorResult = await conn.query(doctorQuery, [userId]);
+                if (doctorResult.length > 0) {
+                    nombre_completo = doctorResult[0].nombre_completo;
+                }
+            }
+
             console.log('\n✅ Login successful');
             console.log('User details:', {
-                id: user[0].id_usuario,
-                tipo: user[0].tipo_usuario
+                id: userId,
+                tipo: userTipo,
+                nombre_completo: nombre_completo
             });
             
             res.json({
                 success: true,
                 user: {
-                    id: user[0].id_usuario,
-                    tipo: user[0].tipo_usuario
+                    id: userId,
+                    tipo: userTipo,
+                    nombre_completo: nombre_completo
                 }
             });
         } else {

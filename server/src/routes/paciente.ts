@@ -32,17 +32,45 @@ router.get('/:id', async (req, res) => {
             'CALL ObtenerHistorialMedicoPaciente(?)',
             [paciente.id_paciente]
         ) as any[][];
+        console.log('Debug: Raw historyRows from SP:', historyRows);
 
         // The stored procedure returns an array of results, the actual data is in the first element
-        const historial_medico = historyRows[0];
+        const historial_medico_raw = historyRows[0];
+        const historial_medico = Array.isArray(historial_medico_raw) ? historial_medico_raw : [];
+        console.log('Debug: historial_medico after robust extraction:', historial_medico);
+
+        // Fetch patient's appointments
+        const rawCitasQueryResult = await conn.query(
+            `SELECT 
+                c.id_cita,
+                c.fecha,
+                c.hora,
+                c.estado,
+                doc.nombre_completo AS doctor_nombre,
+                e.nombre AS especialidad
+            FROM Cita c
+            JOIN Doctor doc ON c.id_doctor = doc.id_doctor
+            JOIN Usuario d ON doc.id_usuario = d.id_usuario
+            JOIN Especialidad e ON doc.id_especialidad = e.id_especialidad
+            WHERE c.id_paciente = ?
+            ORDER BY c.fecha DESC, c.hora DESC`,
+            [paciente.id_paciente]
+        );
+        console.log('Debug: Raw result from conn.query for citas:', rawCitasQueryResult);
+
+        // Assume rawCitasQueryResult is directly the array of rows
+        const citas = Array.isArray(rawCitasQueryResult) ? rawCitasQueryResult : [];
+        console.log('Debug: citas after robust extraction (final attempt):', citas);
 
         conn.release();
 
         console.log('Paciente found:', paciente);
         console.log('Historial Médico found:', historial_medico.length);
-        res.json({ success: true, paciente, historial_medico });
+        console.log('Citas found:', citas.length);
+        res.json({ success: true, paciente, historial_medico, citas });
     } catch (error: any) {
-        console.error('Error fetching paciente:', error.message);
+        console.log('Debug: An error occurred in /api/paciente/:id endpoint.');
+        console.error('Error fetching paciente:', error); // Log the full error object
         res.status(500).json({ success: false, message: 'Error del servidor' });
     }
 });

@@ -1,0 +1,57 @@
+# Diagrama de Contexto - Nivel 3
+
+## Proceso: Agendar Cita (dentro del Módulo de Agendamiento de Citas)
+
+### Componentes Involucrados:
+- Paciente
+- UI de Agendamiento (Interfaz de Usuario)
+- Servicio de Búsqueda de Doctores
+- Servicio de Disponibilidad
+- Servicio de Verificación de Conflictos
+- Servicio de Creación de Citas
+- Base de Datos de Doctores/Especialidades
+- Base de Datos de Citas
+
+### Flujo Detallado del Proceso:
+
+```mermaid
+sequenceDiagram
+    actor P as Paciente
+    participant UI as UI de Agendamiento
+    participant SBD as Servicio de Búsqueda de Doctores
+    participant SD as Servicio de Disponibilidad
+    participant SVC as Servicio de Verificación de Conflictos
+    participant SCC as Servicio de Creación de Citas
+    database BDD as BD Doctores/Especialidades
+    database BDC as BD Citas
+
+    P->>UI: 1. Inicia Agendamiento de Cita
+    UI->>P: 2. Solicita Especialidad
+
+    P->>UI: 3. Selecciona Especialidad (ej. Cardiología)
+    UI->>SBD: 4. Solicita Doctores por Especialidad
+    SBD->>BDD: 5. Consulta Doctores Disponibles
+    BDD-->>SBD: 6. Lista de Doctores
+    SBD-->>UI: 7. Muestra Doctores (ej. Dr. Ana Morales)
+
+    P->>UI: 8. Selecciona Doctor y Fecha (ej. Dr. Ana Morales, 2025-11-20)
+    UI->>SD: 9. Solicita Horarios Disponibles
+    SD->>BDC: 10. Consulta Citas Agendadas para Doctor/Fecha
+    BDC-->>SD: 11. Citas Existentes
+    SD-->>UI: 12. Horarios Libres Calculados
+
+    P->>UI: 13. Selecciona Hora (ej. 10:00 AM)
+    UI->>SVC: 14. Verifica Conflicto de Cita (Paciente/Doctor)
+    SVC->>BDC: 15. Consulta Citas de Paciente y Doctor
+    BDC-->>SVC: 16. Citas Relevantes
+    SVC-->>UI: 17. Resultado de Verificación (Sin Conflicto)
+
+    P->>UI: 18. Confirma Cita
+    UI->>SCC: 19. Envía Datos de Cita para Creación
+    SCC->>BDC: 20. Guarda Nueva Cita
+    BDC-->>SCC: 21. Cita Guardada (ID C00XX)
+    SCC-->>UI: 22. Confirmación de Creación
+    UI->>P: 23. Muestra Confirmación de Cita
+    UI->>P: 24. (Opcional) Envía Notificación de Cita
+    SCC->>D: 25. (Opcional) Envía Notificación a Doctor
+```

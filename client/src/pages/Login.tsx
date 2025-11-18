@@ -6,7 +6,7 @@ import './Login.css';
 interface LoginProps {
   tipo_usuario: 'Paciente' | 'Doctor';
   onBack: () => void;
-  onSuccess?: (userId: string, tipo: string) => void;
+  onSuccess?: (userId: string, tipo: string, nombre_completo?: string) => void;
 }
 
 const cardStyle = {
@@ -83,10 +83,11 @@ const Login: React.FC<LoginProps> = ({ tipo_usuario, onBack, onSuccess }) => {
         const returnedUser = response.data.user || {};
         const userId = returnedUser.id_usuario || returnedUser.id || returnedUser.idUser || null;
         const userTipo = returnedUser.tipo || returnedUser.tipo_usuario || null;
-        console.log('Parsed userId:', userId, 'userTipo:', userTipo);
+        const nombre_completo = returnedUser.nombre_completo || null; // Extract nombre_completo
+        console.log('Parsed userId:', userId, 'userTipo:', userTipo, 'nombre_completo:', nombre_completo);
         if (userId && userTipo) {
-          console.log('Calling onSuccess callback with', userId, userTipo);
-          onSuccess && onSuccess(userId, userTipo);
+          console.log('Calling onSuccess callback with', userId, userTipo, nombre_completo);
+          onSuccess && onSuccess(userId, userTipo, nombre_completo);
         } else {
           console.warn('Login returned success but user id/tipo missing', returnedUser);
         }
